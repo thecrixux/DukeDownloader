@@ -229,3 +229,6 @@ yarn-error.log*
 # Release notes
 RELEASE_NOTES*.md
 
+/*.ps1
+/.duke-*-backup/
+/*.patch
