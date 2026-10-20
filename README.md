@@ -1,413 +1,102 @@
-# Tottodrillo 🎮
+<div align="center">
 
-![Android](https://img.shields.io/badge/Platform-Android-green.svg)
-![Kotlin](https://img.shields.io/badge/Language-Kotlin-blue.svg)
-![MinSDK](https://img.shields.io/badge/MinSDK-26-orange.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Version](https://img.shields.io/badge/Version-3.1.0-blue.svg)
+# 🦆 DukeDownloader
 
-**Tottodrillo** is a modern and minimal Android app to explore, search, and download ROMs from multiple sources. The app supports dynamic source installation via ZIP packages, allowing you to add new ROM sources without updating the app.
+### Your retro library starts here.
 
-**Sources Repository**: [Tottodrillo-Source](https://github.com/mccoy88f/Tottodrillo-Source) - Contains all source definitions and development guides.
+**Discover · Explore · Download**
 
-## 🌍 Other Languages / Altri Linguaggi
+[![Android](https://img.shields.io/badge/Platform-Android-18181B?logo=android&logoColor=FFB800)](https://www.android.com/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-18181B?logo=kotlin&logoColor=FFB800)](https://kotlinlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-FFB800?labelColor=101012)](LICENSE)
+[![Development](https://img.shields.io/badge/Status-Active%20development-FF8A00?labelColor=101012)](https://github.com/thecrixux/DukeDownloader)
 
-This README is also available in other languages:
+**A Duke family project · PS2EMU**
 
-- [🇮🇹 Italiano](README.it.md)
-- [🇪🇸 Español](README.es.md)
-- [🇩🇪 Deutsch](README.de.md)
-- [🇯🇵 日本語](README.ja.md)
-- [🇫🇷 Français](README.fr.md)
-- [🇨🇳 简体中文](README.zh-CN.md)
-- [🇵🇹 Português](README.pt.md)
+</div>
 
 ---
 
-## ✨ Key Features
+## 🎮 What is DukeDownloader?
 
-### 🎮 IGDB Integration (NEW in v2.7.0)
-- **Metadata Import**: Search and import rich metadata for your ROMs from the Internet Game Database (IGDB)
-- **Comprehensive Game Information**: Import title, cover art, description, storyline, genres, developer, publisher, rating, screenshots, and more
-- **Easy Configuration**: Set up your IGDB Client ID and Secret directly in Settings
-- **Smart Matching**: View matching platforms and confirm before importing metadata
-- **Enhanced ROM Details**: Enrich your ROM collection with professional metadata and high-quality cover art from IGDB
+**DukeDownloader** is an Android app for exploring retro-game catalogs and managing downloads from configurable external sources. It's a customized fork of [Tottodrillo](https://github.com/mccoy88f/Tottodrillo), with its own identity and continuing improvements.
 
-### 🔍 ROM Info Search & Recent Searches
-- **Multiple Search Providers**: Choose between different providers for ROM information search
-- **Configurable Provider**: Select your preferred search provider in settings
-- **Dynamic Button Text**: Search button text changes based on selected provider
-- **Recent Searches (NEW in v3.1.0)**:
-  - Automatic history of the last searches with applied filters
-  - Quick recall of recent searches from the search screen
-  - Smart reset: when clearing the query (and no filters are active), recent searches are shown again
+Search for a title, browse platforms, inspect artwork and manage downloads without juggling multiple apps.
 
-### 🔌 Multi-Source System (NEW in v2.0)
-- **Dynamic Source Installation**: Install new ROM sources via ZIP packages without updating the app
-- **Multiple Source Types**: Support for API, Java/Kotlin, and Python sources
-- **Source Management**: Enable/disable, install, uninstall, and update sources from settings
-- **Default Sources**: Automatic installation of default sources on first launch
-- **Source Filtering**: Filter search results by selected sources
-- **Automatic Refresh**: UI updates automatically when sources are enabled/disabled
-- **Platform Mapping**: Each source includes its own platform mapping for seamless integration
+> [!NOTE]
+> DukeDownloader is under active development. Source availability, cover-art accuracy and compatibility depend on external services and the current build.
 
-### 🔍 Exploration & Search
-- **Home Screen** with featured ROMs, popular platforms, favorites, recent ROMs and downloaded ROMs
-- **Platform Exploration** organized by brand (Nintendo, PlayStation, Sega, Xbox, etc.) with collapsible/expandable sections
-- **Advanced Search** with automatic debounce (500ms) to optimize queries
-- **Multiple Filters** for platforms, regions, and sources with interactive chips
-- **Infinite Pagination** with automatic lazy loading
-- **ROM Display** with centered and proportioned cover art
-- **Image Carousel**: Multiple images per ROM (box art, screenshots) with swipeable carousel
-- **Lazy Image Loading**: Images load only when visible on screen for better performance
+## ✨ Highlights
 
-### 📥 Download & Installation
-- **Background Downloads** with WorkManager for reliability
-- **Real-time Progress Tracking** with percentage, bytes downloaded, and speed (also visible from ROM detail)
-- **Interactive Notifications** with "Cancel download" and "Cancel installation" actions
-- **Multiple Concurrent Downloads** with separate progress and notifications for each task
-- **Custom Path** to save files in any folder (including external SD card)
-- **Automatic/Manual Installation**:
-  - Support for ZIP archives (extraction)
-  - Support for non-archive files (copy/move)
-  - Folder picker for custom destination
-- **ES-DE Compatibility**:
-  - Automatic installation in ES-DE folder structure
-  - ES-DE ROMs folder selection
-  - Automatic organization by `mother_code` (e.g., `fds/`, `nes/`, etc.)
-- **File Management**:
-  - Overwrite existing files (does not delete other files in the folder)
-  - Optional deletion of original file after installation
-  - Download and extraction history management
-- **Advanced Options**:
-  - WiFi-only downloads to save mobile data
-  - Available space verification before download
-  - Configurable notifications
-- **Session Management**: Automatic cookie handling for sources that require it
+| Feature | Description |
+|---|---|
+| 🔎 **Multi-source search** | Browse and search across configured catalogs |
+| 🎮 **Multi-platform discovery** | Consoles and arcade systems, depending on enabled sources |
+| 🖼️ **Game artwork** | Cover lookup, regional matching and graceful fallbacks; continually being improved |
+| ⚡ **Download manager** | Background downloads, progress tracking and support for segmented downloading |
+| 🧩 **Extensible sources** | Source packages and integrations based on the Tottodrillo architecture |
+| 📁 **File management** | Configurable download folder and local file operations |
+| 🌍 **Multilingual UI** | Localized interface for supported languages |
 
-### 💾 ROM Management
-- **Favorites** with file-based persistence
-- **Recent ROMs** (last 25 opened) with file-based persistence
-- **Download/Installation Status** for each link with automatic updates
-- **Multiple Download Links**: Support for multiple versions and formats per ROM
-- **Source Identification**: Each download link shows its source
-- **Status Icons**:
-  - Download in progress with progress indicator
-  - Installation in progress with percentage
-  - Installation completed (green icon)
-  - Installation failed (red icon, clickable to retry)
-- **Open Installation Folders** directly from the app
+## 🟡 Duke Gold design
 
-### 🎨 Design & UI
-- **Material Design 3** with automatic dark/light theme
-- **Minimal and Modern** interface
-- **Smooth Animations** with Jetpack Compose
-- **Cover Art** with lazy loading (Coil) and automatic centering
-- **Platform Logos** SVG loaded from assets with fallback
-- **Region Badges** with emoji flags (automatically mapped from source region names)
-- **ROM Cards** with uniform maximum width (180dp)
-- **Image Carousel**: Swipeable carousel for multiple ROM images
+A dark interface with the signature golden accents of the Duke project family:
 
-### ⚙️ Settings (Redesigned in v2.7.0)
-- **Tree Structure with Expandable Groups**: Settings organized into 8 collapsible categories for better navigation
-- **Source Management**:
-  - View all installed sources
-  - Enable/disable sources
-  - Install new sources from ZIP files
-  - Update existing sources
-  - Uninstall sources
-  - Install default sources
-- **ROM Info Search**:
-  - Choose search provider (Gamefaqs or MobyGames)
-  - Gamefaqs is the default provider
-  - IGDB integration settings (Client ID and Secret configuration)
-- **Download Configuration**:
-  - Custom download folder selection
-  - Available space display
-  - Storage permissions management (Android 11+)
-  - WiFi-only downloads
-  - Notifications on/off (for downloads, installations, and updates)
-- **Installation Configuration**:
-  - Delete original file after installation
-  - ES-DE compatibility with folder selection
-- **History Management**:
-  - Clear download and extraction history (with confirmation)
-- **App Information** (Always visible):
-  - App version
-  - GitHub link
-  - Support section
+| Element | Hex |
+|---|---|
+| Main accent | `#FFB800` |
+| Highlight | `#FFC21A` |
+| Orange accent | `#FF8A00` |
+| Background | `#101012` |
+| Cards and surfaces | `#18181B` |
+| Main text | `#F2F2F2` |
+| Secondary text | `#9A9AA2` |
 
-## 📱 Screenshots
+*Dark surfaces. Golden details. Retro soul.* 🦆
 
-![Tottodrillo Home Screen](screen.jpg)
+## 🛠️ Technology
 
-## 🏗️ Architecture
+**Kotlin · Jetpack Compose · Material 3 · Hilt · Retrofit / OkHttp · WorkManager · Chaquopy / Python**
 
-The app follows **Clean Architecture** with layer separation:
+The source system supports multiple integration methods inherited from Tottodrillo. Individual website integrations may require updates as those websites change.
 
-```
-app/
-├── data/
-│   ├── mapper/              # API → Domain conversion
-│   ├── model/               # Data models (API, Platform)
-│   ├── remote/               # Retrofit, API service, Source executors
-│   ├── repository/           # Repository implementations
-│   ├── receiver/             # BroadcastReceiver for notifications
-│   └── worker/               # WorkManager workers (Download, Extraction)
-├── domain/
-│   ├── manager/              # Business logic managers (Download, Platform, Source)
-│   ├── model/                # Domain models (UI)
-│   └── repository/           # Repository interfaces
-└── presentation/
-    ├── components/            # Reusable UI components
-    ├── common/                # UI State classes
-    ├── detail/                # ROM detail screen
-    ├── downloads/             # Downloads screen
-    ├── explore/               # Platform exploration screen
-    ├── home/                  # Home screen
-    ├── navigation/            # Navigation graph
-    ├── platform/              # ROMs by platform screen
-    ├── search/                # Search screen
-    ├── settings/              # Settings screen
-    ├── sources/               # Source management screens
-    └── theme/                 # Theme system
+## 💻 Build locally (Windows / PowerShell)
+
+**Requirements:** JDK 17, Android SDK Platform 34, compatible Android Build-Tools, Python 3.11 and Git.
+
+```powershell
+git clone https://github.com/thecrixux/DukeDownloader.git
+Set-Location DukeDownloader
+java -version
+py -3.11 --version
 ```
 
-## 🛠️ Tech Stack
+Use the build scripts or Gradle wrapper included in the current version of the project. Build and sign Release APKs **locally** with your own keystore. Never commit signing keys, passwords, SDK-specific paths or generated build files.
 
-### Core
-- **Kotlin** - Primary language
-- **Jetpack Compose** - Modern UI toolkit
-- **Material 3** - Design system
+## 🚧 Project status
 
-### Architecture
-- **MVVM** - Architectural pattern
-- **Hilt** - Dependency Injection
-- **Coroutines & Flow** - Concurrency and reactivity
-- **StateFlow** - Reactive state management
+The project is evolving. Not all games have artwork, and external download sources can change or become unavailable. Issues and device testing help us improve reliability.
 
-### Networking
-- **Retrofit** - HTTP client
-- **OkHttp** - Network layer with cookie management
-- **Gson** - JSON parsing
-- **Coil** - Image loading with SVG support
+[**Report a bug**](https://github.com/thecrixux/DukeDownloader/issues) · [**Browse source**](https://github.com/thecrixux/DukeDownloader)
 
-### Storage & Persistence
-- **DataStore** - Persistent preferences
-- **WorkManager** - Reliable background tasks
-- **File I/O** - `.status` file management for tracking downloads/installations
+## 🙏 Credits & license
 
-### Navigation
-- **Navigation Compose** - Screen routing
-- **Safe Navigation** - Back stack management to avoid blank screens
+DukeDownloader is based on **[Tottodrillo by mccoy88f](https://github.com/mccoy88f/Tottodrillo)**. Thanks to its author and contributors for the original architecture and source-management foundation.
 
-### Background Tasks
-- **DownloadWorker** - File download in background with foreground service
-- **ExtractionWorker** - File extraction/copy in background
-- **Foreground Notifications** - Interactive notifications with actions
+Original source-development documentation: **[Tottodrillo-Source](https://github.com/mccoy88f/Tottodrillo-Source)**.
 
-### Source System
-- **SourceExecutor Interface** - Common interface for all source types
-- **SourceApiAdapter** - API source executor
-- **JavaSourceExecutor** - Java/Kotlin source executor with dynamic class loading
-- **PythonSourceExecutor** - Python source executor using Chaquopy
-- **Chaquopy** - Python SDK for Android (Python 3.11)
+See [LICENSE](LICENSE) (MIT) and retain upstream / third-party notices where required.
 
-## 🚀 Setup
+## ⚖️ Disclaimer
 
-### Prerequisites
-- Android Studio Hedgehog (2023.1.1) or higher
-- JDK 17
-- Android SDK API 34
-- Gradle 8.2+
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/mccoy88f/Tottodrillo.git
-cd Tottodrillo
-```
-
-2. **Open in Android Studio**
-   - File → Open → Select the project folder
-
-3. **Sync Gradle**
-   - Android Studio will automatically sync dependencies
-
-4. **Build & Run**
-   - Select a device/emulator
-   - Run → Run 'app'
-
-### Configuration
-
-No API key is required. The app uses public APIs from installed sources. Each source can be either:
-- **API-based**: HTTP REST API endpoints
-- **Python-based**: Web scraping via Python scripts
-
-## 📦 Build
-
-### Debug Build
-```bash
-./gradlew assembleDebug
-```
-
-### Release Build
-```bash
-./gradlew assembleRelease
-```
-
-The APK will be generated in: `app/build/outputs/apk/`
-
-## 🎯 Detailed Features
-
-### Source System
-- **Installation**: Install sources from ZIP files via file picker
-- **Validation**: Automatic validation of source structure and metadata
-- **Version Management**: Update sources with newer versions (preserves enabled state)
-- **Enable/Disable**: Toggle sources on/off without uninstalling
-- **Uninstallation**: Remove sources completely
-- **Default Sources**: Optional automatic installation of a default set of sources on first launch
-- **Cache Management**: Automatic cache invalidation when sources change
-- **Platform Mapping**: Each source defines its own platform code mapping
-- **Advanced Source Services (NEW in v3.1.0)**:
-  - Centralized services in the app (HTTP client, cookies, SSL configuration, WebView helpers, Cloudflare-like bypass)
-  - Sources declare their needs via configuration, the app provides the implementation
-  - Strong decoupling between app and sources: the app is agnostic about which sources are installed
-
-### Download Manager
-- Multiple simultaneous downloads
-- Progress tracking for each download
-- Cancel ongoing downloads
-- Error handling with automatic retry
-- Available space verification
-- External SD card support
-- Session cookie management for sources that require it
-
-### Installation
-- ZIP archive extraction
-- Copy/move non-archive files
-- Progress tracking during installation
-- Error handling with red clickable icon for retry
-- Automatic UI update after installation
-- Open installation folder
-- Multiple download links per ROM (versions, formats)
-
-### ES-DE Compatibility
-- Enable/disable compatibility
-- ES-DE ROMs folder selection
-- Automatic installation in correct structure
-- Automatic mapping `mother_code` → folder
-
-### History Management
-- `.status` files for tracking downloads/installations
-- Multi-line format to support multiple downloads of the same file
-- Clear history with user confirmation
-
-## 📚 Source Development
-
-Tottodrillo supports three types of sources:
-
-1. **API Sources**: HTTP REST API endpoints
-2. **Java/Kotlin Sources**: Local Java/Kotlin code execution
-3. **Python Sources**: Local Python script execution (using Chaquopy)
-
-For detailed documentation on creating sources, see the [Tottodrillo-Source repository](https://github.com/mccoy88f/Tottodrillo-Source):
-- [🇮🇹 Italian Guide](https://github.com/mccoy88f/Tottodrillo-Source/blob/main/SOURCE_DEVELOPMENT.md)
-- [🇬🇧 English Guide](https://github.com/mccoy88f/Tottodrillo-Source/blob/main/SOURCE_DEVELOPMENT_EN.md)
-
-### Quick Start
-
-1. Create a ZIP package with:
-   - `source.json` - Source metadata (required)
-   - `platform_mapping.json` - Platform code mapping (required)
-   - `api_config.json` - API configuration (for API sources)
-   - Python script or JAR file (for Python/Java sources)
-
-2. Install the source via Settings → Sources → Install Source
-
-3. Enable the source and start using it!
-
-See the documentation files for complete examples and API details.
-
-## 🌐 Localization
-
-The app currently supports 8 languages:
-- 🇮🇹 Italian (default)
-- 🇬🇧 English
-- 🇪🇸 Spanish
-- 🇩🇪 German
-- 🇯🇵 Japanese
-- 🇫🇷 French
-- 🇨🇳 Simplified Chinese
-- 🇵🇹 Portuguese
-
-The app automatically uses the device's language. If the language is not supported, it defaults to Italian.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the project
-2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Guidelines
-- Follow Kotlin conventions
-- Use Jetpack Compose for UI
-- Write tests when possible
-- Document public APIs
-- Keep code clean and readable
-
-## 📄 License
-
-This project is released under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-### APIs & Database
-- Various public ROM databases and sources
-
-### Platform Logos
-Platform SVG logos are provided by:
-- [alekfull-nx-es-de](https://github.com/anthonycaccese/alekfull-nx-es-de) - ES-DE logo repository
-
-### Libraries
-- [Chaquopy](https://chaquo.com/chaquopy/) - Python SDK for Android
-
-### Community
-- Retro gaming community for support and feedback
-- All contributors and app testers
-
-## ⚠️ Disclaimer
-
-**IMPORTANT**: This app is created for educational and research purposes.
-
-- Using ROMs requires **legal ownership** of the original game
-- Always respect **copyright laws** in your country
-- The app does not provide ROMs, but only facilitates access to public databases
-- The author assumes no responsibility for misuse of the application
-
-## 📞 Contact
-
-**Author**: mccoy88f
-
-**Repository**: [https://github.com/mccoy88f/Tottodrillo](https://github.com/mccoy88f/Tottodrillo)
-
-**Issues**: If you find bugs or have suggestions, open an [Issue](https://github.com/mccoy88f/Tottodrillo/issues)
-
-## ☕ Support Me
-
-If you like this project and want to support me, you can buy me a coffee! 🍺
-
-Your support helps me continue development and improve the app.
-
-[![Buy me a beer](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20beer&emoji=%F0%9F%8D%BA&slug=mccoy88f&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/mccoy88f)
-
-[You can also buy me a coffee with PayPal 🍻](https://paypal.me/mccoy88f?country.x=IT&locale.x=it_IT)
+This project does **not** ship commercial game ROMs. Users must ensure they have the legal right to access and download any content and comply with applicable copyright laws. External websites and sources are independent of DukeDownloader.
 
 ---
 
-**Made with ❤️ for the retro gaming community**
+<div align="center">
+
+**Made for retro gaming. Powered by curiosity.** 🦆
+
+**DukeDownloader · PS2EMU**
+
+</div>
