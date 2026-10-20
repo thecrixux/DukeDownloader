@@ -33,6 +33,7 @@ suspend fun <T> safeApiCall(
     } catch (e: UnknownHostException) {
         NetworkResult.Error(NetworkException.NoInternet())
     } catch (e: Exception) {
+        if (e is kotlinx.coroutines.CancellationException) throw e
         NetworkResult.Error(
             NetworkException.UnknownError(e.message ?: "Errore imprevisto")
         )

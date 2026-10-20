@@ -149,7 +149,7 @@ private fun DownloadTaskCard(
                         IconButton(onClick = onCancel) {
                             Icon(
                                 imageVector = Icons.Default.Cancel,
-                                contentDescription = "Cancel",
+                                contentDescription = stringResource(com.tottodrillo.R.string.cancel),
                                 tint = MaterialTheme.colorScheme.error
                             )
                         }
@@ -157,7 +157,7 @@ private fun DownloadTaskCard(
                     is DownloadStatus.Completed -> {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Completed",
+                            contentDescription = stringResource(com.tottodrillo.R.string.downloads_completed),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
@@ -165,7 +165,7 @@ private fun DownloadTaskCard(
                     is DownloadStatus.Failed -> {
                         Icon(
                             imageVector = Icons.Default.Error,
-                            contentDescription = "Failed",
+                            contentDescription = stringResource(com.tottodrillo.R.string.downloads_failed),
                             tint = MaterialTheme.colorScheme.error,
                             modifier = Modifier.size(24.dp)
                         )
@@ -179,7 +179,7 @@ private fun DownloadTaskCard(
                     is DownloadStatus.Paused -> {
                         Icon(
                             imageVector = Icons.Default.Download,
-                            contentDescription = "Paused",
+                            contentDescription = stringResource(com.tottodrillo.R.string.download_waiting),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(24.dp)
                         )
@@ -223,7 +223,7 @@ private fun DownloadTaskCard(
                 }
                 is DownloadStatus.Completed -> {
                     Text(
-                        text = "Download completato",
+                        text = stringResource(com.tottodrillo.R.string.notif_download_completed),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -231,7 +231,7 @@ private fun DownloadTaskCard(
                     if (task.willAutoExtract) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Estrazione automatica...",
+                            text = stringResource(com.tottodrillo.R.string.notif_extracting),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -239,14 +239,14 @@ private fun DownloadTaskCard(
                 }
                 is DownloadStatus.Failed -> {
                     Text(
-                        text = "Errore: ${status.error}",
+                        text = stringResource(com.tottodrillo.R.string.error_details, status.error),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
                 is DownloadStatus.Pending -> {
                     Text(
-                        text = "In attesa...",
+                        text = stringResource(com.tottodrillo.R.string.download_waiting),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

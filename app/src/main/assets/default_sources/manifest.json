@@ -1,0 +1,14 @@
+[
+  {
+    "file": "lolroms-source.zip",
+    "id": "lolroms",
+    "version": "0.2.1",
+    "sha256": "936879cbbbf2d990efeca707c50fcadcb434075be284a77454aae4408955fd58"
+  },
+  {
+    "file": "emuparadise-ps2-source.zip",
+    "id": "emuparadise_ps2",
+    "version": "0.1.1",
+    "sha256": "e559bd69bea288722c2857aeffc87d7e7f81f526ba01217d15f73e67da963866"
+  }
+]

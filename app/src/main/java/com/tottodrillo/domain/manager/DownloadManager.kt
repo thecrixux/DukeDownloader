@@ -85,6 +85,8 @@ class DownloadManager @Inject constructor(
 
         // Input data per il worker
         val inputData = Data.Builder()
+            .putInt(DownloadWorker.KEY_CONNECTIONS, config.downloadConnections)
+            .putString(DownloadWorker.KEY_SOURCE_URL, downloadLink.sourceUrl)
             .putString(DownloadWorker.KEY_URL, downloadLink.url)
             .putString(DownloadWorker.KEY_ORIGINAL_URL, originalUrl) // URL originale (se diverso)
             .putString(DownloadWorker.KEY_INTERMEDIATE_URL, downloadLink.intermediateUrl) // URL pagina intermedia (se presente)

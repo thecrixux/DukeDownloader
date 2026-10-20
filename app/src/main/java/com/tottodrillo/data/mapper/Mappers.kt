@@ -13,8 +13,8 @@ import com.tottodrillo.domain.model.Rom
 fun RomEntry.toDomain(sourceId: String? = null): Rom {
     // Gestisci box_image e screen_image separati (nuovo formato)
     // box_image è obbligatoria, screen_image è facoltativa
-    val boxImage = this.boxImage
-    val screenImage = this.screenImage
+    val boxImage = this.boxImage?.takeIf { it.isNotBlank() }
+    val screenImage = this.screenImage?.takeIf { it.isNotBlank() }
     
     android.util.Log.d("Mappers", "🔄 [toDomain] ROM: ${this.title}")
     android.util.Log.d("Mappers", "   boxImage: $boxImage")
@@ -70,6 +70,7 @@ fun RomEntry.toDomain(sourceId: String? = null): Rom {
                 sourceId = sourceId,
                 requiresWebView = link.requiresWebView,
                 delaySeconds = link.delaySeconds,
+                sourceUrl = link.sourceUrl,
                 intermediateUrl = link.intermediateUrl
             )
         },
@@ -100,8 +101,8 @@ fun Map.Entry<String, String>.toRegionInfo(): RegionInfo =
  */
 private fun normalizeRegionNameToCode(regionName: String, sourceId: String?): String {
     // Se è già un codice standardizzato (2-3 lettere maiuscole), restituiscilo
-    if (regionName.matches(Regex("^[A-Z]{2,3}$"))) {
-        return regionName.uppercase()
+    if (regionName.matches(Regex("^[A-Z]{2,5}$"))) {
+        return if (regionName == "WORLD") "WW" else regionName.uppercase()
     }
     
     // Normalizza il nome per il matching (rimuovi spazi, converti in minuscolo)

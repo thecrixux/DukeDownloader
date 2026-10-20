@@ -33,14 +33,14 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Search : Screen("search") {
         fun createRoute(platformCode: String? = null, query: String? = null) = when {
-            platformCode != null -> "search/platform/$platformCode"
+            platformCode != null -> "search/platform/${android.net.Uri.encode(platformCode)}"
             query != null -> "search/query/${java.net.URLEncoder.encode(query, "UTF-8")}"
             else -> "search"
         }
     }
     
     data object SearchWithPlatform : Screen("search/platform/{platformCode}") {
-        fun createRoute(platformCode: String) = "search/platform/$platformCode"
+        fun createRoute(platformCode: String) = "search/platform/${android.net.Uri.encode(platformCode)}"
     }
     
     data object SearchWithQuery : Screen("search/query/{query}") {
@@ -253,20 +253,20 @@ fun TottodrilloNavGraph(
         ) { backStackEntry ->
             val romSlug = backStackEntry.arguments?.getString("romSlug") ?: return@composable
 
-                    RomDetailRoute(
-                        romSlug = romSlug,
-                        onNavigateBack = { 
-                            romSlugFromNotification = null // Reset quando si torna indietro
-                            navController.safePopBackStack() 
-                        },
-                        onNavigateToPlatform = { platformCode ->
-                            navController.navigate(Screen.Search.createRoute(platformCode))
-                        },
-                        onRequestExtraction = { archivePath, romTitle, romSlug, platformCode ->
-                            onRequestExtraction(archivePath, romTitle, romSlug, platformCode)
-                        },
-                        isFromNotification = romSlugFromNotification == romSlug // Indica se si sta navigando dalla notifica
-                    )
+            RomDetailRoute(
+                romSlug = romSlug,
+                onNavigateBack = {
+                    romSlugFromNotification = null // Reset quando si torna indietro
+                    navController.safePopBackStack()
+                },
+                onNavigateToPlatform = { platformCode ->
+                    navController.navigate(Screen.Search.createRoute(platformCode))
+                },
+                onRequestExtraction = { archivePath, romTitle, romSlug, platformCode ->
+                    onRequestExtraction(archivePath, romTitle, romSlug, platformCode)
+                },
+                isFromNotification = romSlugFromNotification == romSlug // Indica se si sta navigando dalla notifica
+            )
         }
 
         composable(Screen.Settings.route) {

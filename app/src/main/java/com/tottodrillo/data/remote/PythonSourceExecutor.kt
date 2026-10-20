@@ -68,6 +68,7 @@ class PythonSourceExecutor(
             val searchResults = gson.fromJson(jsonResult, SearchResults::class.java)
             Result.success(searchResults)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -84,6 +85,7 @@ class PythonSourceExecutor(
             val entryResponse = gson.fromJson(jsonResult, EntryResponse::class.java)
             Result.success(entryResponse)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -96,6 +98,7 @@ class PythonSourceExecutor(
             val platforms = gson.fromJson(jsonResult, Map::class.java) as Map<String, Any>
             Result.success(platforms)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -107,6 +110,7 @@ class PythonSourceExecutor(
             val regionsResponse = gson.fromJson(jsonResult, RegionsResponse::class.java)
             Result.success(regionsResponse)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -124,6 +128,7 @@ class PythonSourceExecutor(
                 }
                 com.chaquo.python.Python.getInstance()
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 throw IllegalStateException(
                     "Chaquopy non è disponibile. Aggiungi il plugin Chaquopy al build.gradle.kts e inizializzalo in TottodrilloApp",
                     e
@@ -157,6 +162,7 @@ class PythonSourceExecutor(
             
             result.toString()
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             throw RuntimeException("Errore nell'esecuzione script Python: ${e.message}", e)
         }
     }

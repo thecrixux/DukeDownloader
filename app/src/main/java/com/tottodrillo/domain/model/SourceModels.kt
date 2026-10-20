@@ -32,6 +32,7 @@ data class SourceMetadata(
     val pythonScript: String? = null, // Script Python principale per sorgenti Python (es. "main.py")
     val dependencies: List<String>? = null, // Dipendenze per sorgenti Java (JAR files) o Python (requirements.txt)
     val imageRefererPattern: String? = null, // Pattern per costruire il Referer header per le immagini (es. "https://example.com/vault/{id}")
+    val supportsPreviewImages: Boolean? = null, // null keeps older packages compatible
     val defaultImage: String? = null, // URL dell'immagine placeholder da usare quando una ROM non ha immagini
     val downloadInterceptPatterns: List<String>? = null, // Pattern per intercettare download nel WebView (es. ["download.example.com", ".nsp", ".xci"])
     

@@ -17,6 +17,10 @@ import com.tottodrillo.di.NetworkModule
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import java.io.File
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -70,7 +74,11 @@ class RomRepositoryImpl @Inject constructor(
     override suspend fun searchRoms(
         filters: SearchFilters,
         page: Int
-    ): NetworkResult<List<Rom>> {
+    ): NetworkResult<List<Rom>> = withContext(Dispatchers.IO) {
+        searchRomsOnIo(filters, page)
+    }
+
+    private suspend fun searchRomsOnIo(filters: SearchFilters, page: Int): NetworkResult<List<Rom>> {
         // Verifica se ci sono sorgenti installate
         val hasSources = sourceManager.hasInstalledSources()
         if (!hasSources) {
@@ -104,7 +112,10 @@ class RomRepositoryImpl @Inject constructor(
                 }
             }
             
-            // Cerca nelle sorgenti selezionate (già filtrate se c'è un filtro attivo) in parallelo
+            val favoriteSlugs = loadFavoritesFromFile().toHashSet()
+            val failures = java.util.Collections.synchronizedList(mutableListOf<String>())
+            // Optional remote sources cannot hold an HTTP call forever.
+            val searchClient = okHttpClient.newBuilder().callTimeout(12, java.util.concurrent.TimeUnit.SECONDS).build()
             val allRoms = coroutineScope {
                 enabledSources.map { source ->
                     async {
@@ -116,7 +127,7 @@ class RomRepositoryImpl @Inject constructor(
                             val executor = SourceExecutor.create(
                                 metadata,
                                 sourceDir,
-                                okHttpClient,
+                                searchClient,
                                 gson,
                                 sourceServices
                             )
@@ -124,13 +135,13 @@ class RomRepositoryImpl @Inject constructor(
                             // Normalizza i codici piattaforma a minuscolo per il mapping corretto
                             val platformsList = filters.selectedPlatforms.takeIf { it.isNotEmpty() }?.map { it.lowercase() } ?: emptyList()
                             
-                            val result = executor.searchRoms(
+                            val result = withTimeout(15_000L) { executor.searchRoms(
                                 searchKey = filters.query.takeIf { it.isNotEmpty() },
                                 platforms = platformsList,
                                 regions = filters.selectedRegions.takeIf { it.isNotEmpty() } ?: emptyList(),
                                 maxResults = 50,
                                 page = page
-                            )
+                            ) }
                             
                             result.fold(
                                 onSuccess = { searchResults ->
@@ -139,11 +150,19 @@ class RomRepositoryImpl @Inject constructor(
                                     }
                                 },
                                 onFailure = {
+                                    if (it is CancellationException) throw it
+                                    failures.add(source.name)
                                     android.util.Log.e("RomRepositoryImpl", "Errore ricerca in sorgente ${source.id}", it)
                                     emptyList()
                                 }
                             )
+                        } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                            failures.add(source.name)
+                            emptyList()
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
+                            failures.add(source.name)
                             android.util.Log.e("RomRepositoryImpl", "Errore ricerca in sorgente ${source.id}", e)
                             emptyList()
                         }
@@ -151,6 +170,9 @@ class RomRepositoryImpl @Inject constructor(
                 }.awaitAll()
             }.flatten()
             
+            if (allRoms.isEmpty() && failures.isNotEmpty() && failures.size == enabledSources.size) {
+                return NetworkResult.Error(com.tottodrillo.data.remote.NetworkException.SourceUnavailable(failures.joinToString(", ")))
+            }
             // Filtra ROM nulle e raggruppa per slug
             val validRoms = allRoms.filterNotNull()
             val romsBySlug = validRoms.groupBy { it.slug }
@@ -170,28 +192,8 @@ class RomRepositoryImpl @Inject constructor(
                     .distinct()
                     .filter { it.isNotBlank() } // Doppio filtro per sicurezza
                 
-                // Se non c'è box image (coverUrl è null), rimuovi eventuali screen placeholder di errore
-                // e aggiungi il placeholder corretto come prima immagine
-                val hasBoxImage = roms.any { it.coverUrl != null }
-                
-                if (!hasBoxImage) {
-                    // Se non c'è box image, rimuoviamo tutte le immagini esistenti (potrebbero essere placeholder di errore)
-                    // e aggiungiamo solo il placeholder corretto
-                    allCoverUrls = emptyList()
-                    val placeholderImages = getPlaceholderImages(roms)
-                    // Aggiungi placeholder all'inizio
-                    allCoverUrls = placeholderImages + allCoverUrls
-                } else {
-                    // Anche se c'è box image, aggiungiamo il placeholder come fallback in caso di errore di caricamento
-                    val placeholderImages = getPlaceholderImages(roms)
-                    // Aggiungi placeholder alla fine come fallback (solo se non è già presente)
-                    placeholderImages.forEach { placeholder ->
-                        if (placeholder !in allCoverUrls) {
-                            allCoverUrls = allCoverUrls + placeholder
-                        }
-                    }
-                }
-                
+                allCoverUrls = (allCoverUrls + getPlaceholderImages(roms)).distinct()
+
                 // Unisci tutti i downloadLinks da tutte le ROM
                 val allDownloadLinks = roms
                     .flatMap { it.downloadLinks }
@@ -214,134 +216,27 @@ class RomRepositoryImpl @Inject constructor(
                     coverUrls = allCoverUrls, // Box/placeholder prima, poi screen
                     downloadLinks = allDownloadLinks,
                     regions = allRegions,
-                    isFavorite = isFavorite(slug),
+                    isFavorite = slug in favoriteSlugs,
                     sourceId = firstRom.sourceId // SourceId della prima ROM
                 )
             }
             
-            // Se c'è un filtro regioni e non ci sono risultati, continua a cercare nelle pagine successive
-            // fino a trovare almeno un risultato o raggiungere un limite massimo
-            var finalRoms = enrichedRoms
-            if (filters.selectedRegions.isNotEmpty() && finalRoms.isEmpty() && page == 1) {
-                // Continua a cercare nelle pagine successive fino a trovare risultati o raggiungere il limite
-                var currentPage = page + 1
-                val maxPagesToSearch = 10 // Limite massimo di pagine da cercare
-                
-                while (finalRoms.isEmpty() && currentPage <= maxPagesToSearch) {
-                    
-                    val nextPageRoms = coroutineScope {
-                        enabledSources.map { source ->
-                            async {
-                                try {
-                                    val sourceDir = File(source.installPath ?: return@async emptyList())
-                                    val metadata = sourceManager.getSourceMetadata(source.id)
-                                        ?: return@async emptyList()
-                                    
-                                    val executor = SourceExecutor.create(
-                                        metadata,
-                                        sourceDir,
-                                        okHttpClient,
-                                        gson
-                                    )
-                                    
-                                    val platformsList = filters.selectedPlatforms.takeIf { it.isNotEmpty() }?.map { it.lowercase() } ?: emptyList()
-                                    
-                                    val result = executor.searchRoms(
-                                        searchKey = filters.query.takeIf { it.isNotEmpty() },
-                                        platforms = platformsList,
-                                        regions = filters.selectedRegions,
-                                        maxResults = 50,
-                                        page = currentPage
-                                    )
-                                    
-                                    result.fold(
-                                        onSuccess = { searchResults ->
-                                            searchResults.results.map { entry ->
-                                                entry?.toDomain(sourceId = source.id)
-                                            }
-                                        },
-                                        onFailure = {
-                                            emptyList()
-                                        }
-                                    )
-                                } catch (e: Exception) {
-                                    emptyList()
-                                }
-                            }
-                        }.awaitAll()
-                    }.flatten().filterNotNull()
-                    
-                    if (nextPageRoms.isNotEmpty()) {
-                        // Raggruppa e arricchisci come prima
-                        val nextRomsBySlug = nextPageRoms.groupBy { it.slug }
-                        finalRoms = nextRomsBySlug.map { (slug, roms) ->
-                            val firstRom = roms.first()
-                            val allCoverUrls = roms.flatMap { it.coverUrls }.distinct()
-                            val hasBoxImage = roms.any { it.coverUrl != null }
-                            
-                            val finalCoverUrls = if (!hasBoxImage) {
-                                val placeholderImages = getPlaceholderImages(roms)
-                                placeholderImages + allCoverUrls
-                            } else {
-                                val placeholderImages = getPlaceholderImages(roms)
-                                var urls = allCoverUrls.toMutableList()
-                                placeholderImages.forEach { placeholder ->
-                                    if (placeholder !in urls) {
-                                        urls.add(placeholder)
-                                    }
-                                }
-                                urls
-                            }
-                            
-                            val allDownloadLinks = roms.flatMap { it.downloadLinks }.distinctBy { it.url }
-                            val allRegions = roms.flatMap { it.regions }.distinctBy { it.code }
-                            val enrichedPlatform = enrichPlatformInfo(firstRom.platform, firstRom.sourceId)
-                            
-                            firstRom.copy(
-                                platform = enrichedPlatform,
-                                coverUrl = finalCoverUrls.firstOrNull(),
-                                coverUrls = finalCoverUrls,
-                                downloadLinks = allDownloadLinks,
-                                regions = allRegions,
-                                isFavorite = isFavorite(slug),
-                                sourceId = firstRom.sourceId
-                            )
-                        }
-                        break
-                    }
-                    
-                    currentPage++
-                }
-            }
-            
+            // Each source owns its pagination; scanning ten extra pages duplicates
+            // results, blocks fast sources and hides genuine empty searches.
+            val finalRoms = enrichedRoms
+
             // Filtra ulteriormente per regioni se specificato (doppio controllo)
             // Questo assicura che anche se la sorgente non filtra correttamente, le ROM vengano filtrate
             val finalFilteredRoms = if (filters.selectedRegions.isNotEmpty()) {
                 finalRoms.filter { rom ->
-                    // Verifica se almeno una regione della ROM corrisponde a una regione richiesta
-                    rom.regions.any { romRegion ->
-                        filters.selectedRegions.any { selectedRegion ->
-                            // Confronto case-insensitive
-                            romRegion.code.equals(selectedRegion, ignoreCase = true) ||
-                            // Mapping regioni comuni
-                            (selectedRegion.equals("EU", ignoreCase = true) && 
-                             (romRegion.code.equals("EU", ignoreCase = true) || 
-                              romRegion.displayName.contains("Europe", ignoreCase = true) ||
-                              romRegion.displayName.contains("European", ignoreCase = true))) ||
-                            (selectedRegion.equals("US", ignoreCase = true) && 
-                             (romRegion.code.equals("US", ignoreCase = true) || 
-                              romRegion.displayName.contains("United States", ignoreCase = true) ||
-                              romRegion.displayName.contains("USA", ignoreCase = true) ||
-                              romRegion.displayName.contains("America", ignoreCase = true))) ||
-                            (selectedRegion.equals("JP", ignoreCase = true) && 
-                             (romRegion.code.equals("JP", ignoreCase = true) || 
-                              romRegion.displayName.contains("Japan", ignoreCase = true) ||
-                              romRegion.displayName.contains("Japanese", ignoreCase = true))) ||
-                            (selectedRegion.equals("WW", ignoreCase = true) && 
-                             (romRegion.code.equals("WW", ignoreCase = true) || 
-                              romRegion.displayName.contains("Worldwide", ignoreCase = true) ||
-                              romRegion.displayName.contains("World", ignoreCase = true)))
-                        }
+                    fun canonical(code: String) = when (code.uppercase()) {
+                        "WORLD" -> "WW"
+                        "GB" -> "UK"
+                        else -> code.uppercase()
+                    }
+                    rom.regions.any { region ->
+                        canonical(region.code) == "WW" ||
+                            filters.selectedRegions.any { canonical(it) == canonical(region.code) }
                     }
                 }
             } else {
@@ -353,6 +248,8 @@ class RomRepositoryImpl @Inject constructor(
             val sortedRoms = finalFilteredRoms.sortedBy { it.title.lowercase() }
             
             NetworkResult.Success(sortedRoms)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             android.util.Log.e("RomRepositoryImpl", "Errore nella ricerca ROM", e)
             NetworkResult.Error(
@@ -606,28 +503,8 @@ class RomRepositoryImpl @Inject constructor(
                 }
                 .distinct()
             
-            // Se non c'è box image (coverUrl è null), rimuovi eventuali screen placeholder di errore
-            // e aggiungi il placeholder corretto come prima immagine
-            val hasBoxImage = foundRoms.any { it.coverUrl != null }
-            if (!hasBoxImage) {
-                // Se non c'è box image, rimuoviamo tutte le immagini esistenti (potrebbero essere placeholder di errore)
-                // e aggiungiamo solo il placeholder corretto
-                allCoverUrls = emptyList()
-                val placeholderImages = getPlaceholderImages(foundRoms)
-                // Aggiungi placeholder all'inizio
-                allCoverUrls = placeholderImages + allCoverUrls
-                android.util.Log.d("RomRepositoryImpl", "📱 Aggiunto placeholder per ROM ${firstRom.title} (box image mancante)")
-            } else {
-                // Anche se c'è box image, aggiungiamo il placeholder come fallback in caso di errore di caricamento
-                val placeholderImages = getPlaceholderImages(foundRoms)
-                // Aggiungi placeholder alla fine come fallback (solo se non è già presente)
-                placeholderImages.forEach { placeholder ->
-                    if (placeholder !in allCoverUrls) {
-                        allCoverUrls = allCoverUrls + placeholder
-                    }
-                }
-            }
-            
+            allCoverUrls = (allCoverUrls + getPlaceholderImages(foundRoms)).filter { it.isNotBlank() }.distinct()
+
             // Unisci tutti i downloadLinks da tutte le ROM (solo se richiesto)
             val allDownloadLinks = if (includeDownloadLinks) {
                 foundRoms

@@ -160,7 +160,7 @@ private fun ExpandableSettingsGroup(
 
             Icon(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (isExpanded) "Collassa" else "Espandi",
+                contentDescription = if (isExpanded) stringResource(com.tottodrillo.R.string.collapse) else stringResource(com.tottodrillo.R.string.expand),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)
             )
@@ -278,10 +278,10 @@ fun DownloadSettingsScreen(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notificationManager != null) {
                     val channel = NotificationChannel(
                         channelId,
-                        "Aggiornamenti Sorgenti",
+                        context.getString(R.string.sources_update_auto),
                         NotificationManager.IMPORTANCE_DEFAULT
                     ).apply {
-                        description = "Notifiche per il download degli aggiornamenti delle sorgenti"
+                        description = context.getString(R.string.notif_source_update_description)
                     }
                     notificationManager.createNotificationChannel(channel)
                 }
@@ -304,7 +304,7 @@ fun DownloadSettingsScreen(
                     if (notificationManager != null) {
                         val errorNotification = NotificationCompat.Builder(context, channelId)
                             .setContentTitle(failedTitle)
-                            .setContentText("Errore: contesto non disponibile")
+                            .setContentText(context.getString(R.string.error_unknown))
                             .setSmallIcon(R.drawable.ic_notification)
                             .setAutoCancel(true)
                             .build()
@@ -327,7 +327,7 @@ fun DownloadSettingsScreen(
                     if (notificationManager != null) {
                         val errorNotification = NotificationCompat.Builder(context, channelId)
                             .setContentTitle(failedTitle)
-                            .setContentText("Errore ${response.code}")
+                            .setContentText(context.getString(R.string.http_error, response.code))
                             .setSmallIcon(R.drawable.ic_notification)
                             .setAutoCancel(true)
                             .build()
@@ -353,7 +353,7 @@ fun DownloadSettingsScreen(
                         if (notificationManager != null) {
                             val successNotification = NotificationCompat.Builder(context, channelId)
                                 .setContentTitle(completedTitle)
-                                .setContentText("${it.id} aggiornato con successo")
+                                .setContentText(context.getString(R.string.sources_update_success) + ": " + it.id)
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setAutoCancel(true)
                                 .build()
@@ -370,7 +370,7 @@ fun DownloadSettingsScreen(
                         if (notificationManager != null) {
                             val errorNotification = NotificationCompat.Builder(context, channelId)
                                 .setContentTitle(failedTitle)
-                                .setContentText(error.message ?: "Errore sconosciuto")
+                                .setContentText(error.message ?: context.getString(R.string.error_unknown))
                                 .setSmallIcon(R.drawable.ic_notification)
                                 .setAutoCancel(true)
                                 .build()
@@ -386,7 +386,7 @@ fun DownloadSettingsScreen(
                 if (notificationManager != null) {
                     val errorNotification = NotificationCompat.Builder(context, channelId)
                         .setContentTitle(failedTitle)
-                        .setContentText(e.message ?: "Errore sconosciuto")
+                        .setContentText(e.message ?: context.getString(R.string.error_unknown))
                         .setSmallIcon(R.drawable.ic_notification)
                         .setAutoCancel(true)
                         .build()
@@ -627,6 +627,17 @@ fun DownloadSettingsScreen(
                     checked = config.useWifiOnly,
                     onCheckedChange = viewModel::updateWifiOnly
                 )
+                Text(stringResource(R.string.download_connections_title), modifier = Modifier.padding(top = 12.dp))
+                Text(stringResource(R.string.download_connections_description), style = MaterialTheme.typography.bodySmall)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(1, 2, 4).forEach { count ->
+                        androidx.compose.material3.FilterChip(
+                            selected = config.downloadConnections == count,
+                            onClick = { viewModel.updateDownloadConnections(count) },
+                            label = { Text(stringResource(R.string.download_connection_count, count)) }
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -655,6 +666,11 @@ fun DownloadSettingsScreen(
                 isExpanded = expandedGroups.contains("rom_search"),
                 onToggleExpand = { toggleGroup("rom_search") }
             ) {
+                Text(
+                    text = stringResource(R.string.covers_automatic_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
                 RomInfoSearchProviderDropdown(
                     selectedProvider = config.romInfoSearchProvider,
                     onProviderSelected = viewModel::updateRomInfoSearchProvider
@@ -938,7 +954,7 @@ fun DownloadSettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Tottodrillo",
+                    text = androidx.compose.ui.res.stringResource(com.tottodrillo.R.string.app_name),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary

@@ -1,5 +1,8 @@
 package com.tottodrillo.presentation.detail
 
+import com.tottodrillo.presentation.components.localizedDisplayName
+import com.tottodrillo.presentation.components.rememberFrontCoverUrls
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -523,11 +526,13 @@ fun RomDetailScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
+            val frontCoverUrls by rememberFrontCoverUrls(rom)
+            val galleryUrls = (frontCoverUrls.take(1) + rom.coverUrls.filter { it.startsWith("http") }).distinct()
             // Cover image carosello (se ci sono più immagini)
-            if (rom.coverUrls.size > 1) {
+            if (galleryUrls.size > 1) {
                 // Carosello con più immagini
                 ImageCarousel(
-                    images = rom.coverUrls,
+                    images = galleryUrls,
                     title = rom.title,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -541,20 +546,8 @@ fun RomDetailScreen(
                         .aspectRatio(1.33f),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Prepara la lista di URL da provare in ordine:
-                    // 1. coverUrl (se presente)
-                    // 2. Tutti gli altri elementi di coverUrls (placeholder inclusi)
-                    val urlsToTry = mutableListOf<String>()
-                    if (rom.coverUrl != null) {
-                        urlsToTry.add(rom.coverUrl)
-                    }
-                    // Aggiungi tutti gli elementi di coverUrls che non sono già coverUrl
-                    rom.coverUrls.forEach { url ->
-                        if (url !in urlsToTry) {
-                            urlsToTry.add(url)
-                        }
-                    }
-                    
+                    val urlsToTry = galleryUrls
+
                     if (urlsToTry.isNotEmpty()) {
                         // Usa lo stesso composable ricorsivo di RomCard
                         TryImageUrls(
@@ -741,7 +734,7 @@ fun RomDetailScreen(
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                     Text(
-                                        text = region.displayName,
+                                        text = region.localizedDisplayName(),
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -1133,84 +1126,84 @@ private fun DownloadLinkCard(
 
                 if (downloadStatus is com.tottodrillo.domain.model.DownloadStatus.Completed) {
                     val completed = downloadStatus as com.tottodrillo.domain.model.DownloadStatus.Completed
-                        // Mostra sempre il pulsante di estrazione/copia per tutti i file scaricati
-                        // Per file non-archivio verrà eseguita una copia invece di un'estrazione
-                        // completed.romTitle contiene il percorso completo del file scaricato
-                        when (extractionStatus) {
-                            is com.tottodrillo.domain.model.ExtractionStatus.InProgress -> {
-                                // Mostra progresso estrazione
-                                Row(
-                                    modifier = Modifier.padding(start = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                    Text(
-                                            text = stringResource(R.string.rom_detail_extraction_progress, extractionStatus.progress),
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                            }
-                            is com.tottodrillo.domain.model.ExtractionStatus.Completed -> {
-                                // Log quando viene mostrata l'icona verde
-                                LaunchedEffect(extractionStatus) {
-                                        Log.i("RomDetailScreen", "✅ [PASSO 4] UI: Mostrando icona verde Unarchive - Estrazione completata! Path: ${extractionStatus.extractedPath}, Files: ${extractionStatus.filesCount}")
-                                }
-                                    // Mostra icona estrazione verde cliccabile per aprire la cartella
-                                androidx.compose.material3.IconButton(
-                                    onClick = {
-                                        onOpenExtractionFolder(extractionStatus.extractedPath)
-                                    },
-                                    modifier = Modifier.padding(start = 8.dp)
-                                ) {
-                                    Icon(
-                                            imageVector = Icons.Default.Unarchive,
-                                            contentDescription = stringResource(R.string.rom_detail_open_folder),
-                                        modifier = Modifier.size(24.dp),
-                                        tint = androidx.compose.ui.graphics.Color(0xFF4CAF50) // Verde
-                                    )
-                                }
-                            }
-                            is com.tottodrillo.domain.model.ExtractionStatus.Failed -> {
-                                // Mostra icona errore (opzionale, o mostra di nuovo il pulsante)
-                                androidx.compose.material3.IconButton(
-                                    onClick = {
-                                            // completed.romTitle è il percorso completo del file
-                                            onExtractClick(completed.romTitle, completed.filePath)
-                                    },
-                                    modifier = Modifier.padding(start = 8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Unarchive,
-                                            contentDescription = stringResource(R.string.rom_detail_retry_extraction),
-                                        modifier = Modifier.size(20.dp),
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
-                                }
-                            }
-                            else -> {
-                                    // Mostra pulsante "Estrai/Copia"
-                                androidx.compose.material3.IconButton(
-                                    onClick = {
-                                            // completed.romTitle è il percorso completo del file
-                                            onExtractClick(completed.romTitle, completed.filePath)
-                                    },
-                                    modifier = Modifier.padding(start = 8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Unarchive,
-                                            contentDescription = if (isSupportedArchiveFile(completed.romTitle)) 
-                                                stringResource(R.string.rom_detail_extract_archive) 
-                                            else 
-                                                stringResource(R.string.rom_detail_copy_file),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
+                    // Mostra sempre il pulsante di estrazione/copia per tutti i file scaricati
+                    // Per file non-archivio verrà eseguita una copia invece di un'estrazione
+                    // completed.romTitle contiene il percorso completo del file scaricato
+                    when (extractionStatus) {
+                        is com.tottodrillo.domain.model.ExtractionStatus.InProgress -> {
+                            // Mostra progresso estrazione
+                            Row(
+                                modifier = Modifier.padding(start = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp
+                                )
+                                Text(
+                                        text = stringResource(R.string.rom_detail_extraction_progress, extractionStatus.progress),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
                             }
                         }
+                        is com.tottodrillo.domain.model.ExtractionStatus.Completed -> {
+                            // Log quando viene mostrata l'icona verde
+                            LaunchedEffect(extractionStatus) {
+                                    Log.i("RomDetailScreen", "✅ [PASSO 4] UI: Mostrando icona verde Unarchive - Estrazione completata! Path: ${extractionStatus.extractedPath}, Files: ${extractionStatus.filesCount}")
+                            }
+                                // Mostra icona estrazione verde cliccabile per aprire la cartella
+                            androidx.compose.material3.IconButton(
+                                onClick = {
+                                    onOpenExtractionFolder(extractionStatus.extractedPath)
+                                },
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Icon(
+                                        imageVector = Icons.Default.Unarchive,
+                                        contentDescription = stringResource(R.string.rom_detail_open_folder),
+                                    modifier = Modifier.size(24.dp),
+                                    tint = androidx.compose.ui.graphics.Color(0xFF4CAF50) // Verde
+                                )
+                            }
+                        }
+                        is com.tottodrillo.domain.model.ExtractionStatus.Failed -> {
+                            // Mostra icona errore (opzionale, o mostra di nuovo il pulsante)
+                            androidx.compose.material3.IconButton(
+                                onClick = {
+                                        // completed.romTitle è il percorso completo del file
+                                        onExtractClick(completed.romTitle, completed.filePath)
+                                },
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Unarchive,
+                                        contentDescription = stringResource(R.string.rom_detail_retry_extraction),
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                        else -> {
+                                // Mostra pulsante "Estrai/Copia"
+                            androidx.compose.material3.IconButton(
+                                onClick = {
+                                        // completed.romTitle è il percorso completo del file
+                                        onExtractClick(completed.romTitle, completed.filePath)
+                                },
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Unarchive,
+                                        contentDescription = if (isSupportedArchiveFile(completed.romTitle))
+                                            stringResource(R.string.rom_detail_extract_archive)
+                                        else
+                                            stringResource(R.string.rom_detail_copy_file),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
                     }
                 }
             }

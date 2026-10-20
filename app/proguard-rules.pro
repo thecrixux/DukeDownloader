@@ -43,3 +43,13 @@
 -keep class javax.inject.** { *; }
 -keep class * extends dagger.hilt.android.lifecycle.HiltViewModel
 -keep @dagger.hilt.android.lifecycle.HiltViewModel class * { *; }
+
+# BEGIN DUKE_CHAQUOPY_STARTUP_HOTFIX_V1
+# Keep the native/Python bridge even if Gradle clean removes generated rules.
+# Rules from Chaquopy 16.1.0; keep R8 enabled for the rest of the app.
+-keep class com.chaquo.python.** { *; }
+-keep class kotlin.jvm.functions.** { *; }
+-keep class kotlin.jvm.internal.FunctionBase { *; }
+-keep class kotlin.reflect.KAnnotatedElement { *; }
+-dontwarn org.jetbrains.annotations.NotNull
+# END DUKE_CHAQUOPY_STARTUP_HOTFIX_V1

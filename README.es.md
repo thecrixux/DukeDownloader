@@ -4,11 +4,9 @@
 ![Kotlin](https://img.shields.io/badge/Language-Kotlin-blue.svg)
 ![MinSDK](https://img.shields.io/badge/MinSDK-26-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Version](https://img.shields.io/badge/Version-3.1.0-blue.svg)
+![Version](https://img.shields.io/badge/Version-2.7.0-blue.svg)
 
-**Tottodrillo** es una aplicación Android moderna y minimalista para explorar, buscar y descargar ROMs de múltiples fuentes. La aplicación admite la instalación dinámica de fuentes mediante paquetes ZIP, lo que permite agregar nuevas fuentes ROM sin actualizar la aplicación.
-
-**Repositorio de Fuentes**: [Tottodrillo-Source](https://github.com/mccoy88f/Tottodrillo-Source) - Contiene todas las definiciones de fuentes y guías de desarrollo.
+**Tottodrillo** es una aplicación Android moderna y minimalista para explorar, buscar y descargar ROMs de [CrocDB](https://crocdb.net), la base de datos pública de juegos retro.
 
 ## 🌍 Otros Idiomas / Other Languages
 
@@ -33,39 +31,25 @@ Este README también está disponible en otros idiomas:
 - **Coincidencia Inteligente**: Visualiza las plataformas coincidentes y confirma antes de importar metadatos
 - **Detalles de ROM Enriquecidos**: Enriquece tu colección de ROMs con metadatos profesionales y portadas de alta calidad de IGDB
 
-### 🔍 Búsqueda de Información de ROMs y Búsquedas Recientes
-- **Proveedores Múltiples**: Elige entre diferentes proveedores para la búsqueda de información de ROMs
+### 🔍 Búsqueda de Información de ROMs
+- **Proveedores Múltiples**: Elige entre Gamefaqs y MobyGames para buscar información de ROMs
 - **Proveedor Configurable**: Selecciona tu proveedor preferido en la configuración
+- **Integración Gamefaqs**: Busca información de ROMs directamente en Gamefaqs
+- **Integración MobyGames**: Busca información de ROMs en MobyGames
 - **Texto de Botón Dinámico**: El texto del botón de búsqueda cambia según el proveedor seleccionado
-- **Búsquedas Recientes (NUEVO en v3.1.0)**:
-  - Historial automático de las últimas búsquedas con filtros aplicados
-  - Recuperación rápida de búsquedas recientes desde la pantalla de búsqueda
-  - Reinicio inteligente: al borrar la consulta (y no hay filtros activos), se muestran nuevamente las búsquedas recientes
-
-### 🔌 Sistema Multi-Fuente (NUEVO en v2.0)
-- **Instalación Dinámica de Fuentes**: Instala nuevas fuentes ROM mediante paquetes ZIP sin actualizar la aplicación
-- **Múltiples Tipos de Fuentes**: Soporte para fuentes API, Java/Kotlin y Python
-- **Gestión de Fuentes**: Habilitar/deshabilitar, instalar, desinstalar y actualizar fuentes desde la configuración
-- **Fuentes Predeterminadas**: Instalación automática de fuentes predeterminadas en el primer inicio
-- **Filtrado de Fuentes**: Filtra los resultados de búsqueda por fuentes seleccionadas
-- **Actualización Automática**: La interfaz se actualiza automáticamente cuando se habilitan/deshabilitan fuentes
-- **Mapeo de Plataformas**: Cada fuente incluye su propio mapeo de plataformas para una integración perfecta
 
 ### 🔍 Exploración y Búsqueda
-- **Pantalla de Inicio** con ROMs destacadas, plataformas populares, favoritos, ROMs recientes y ROMs descargadas
+- **Pantalla de Inicio** con ROMs destacadas, plataformas populares, favoritos y ROMs recientes
 - **Exploración de Plataformas** organizadas por marca (Nintendo, PlayStation, Sega, Xbox, etc.) con secciones colapsables/expandibles
 - **Búsqueda Avanzada** con debounce automático (500ms) para optimizar las consultas
-- **Filtros Múltiples** para plataformas, regiones y fuentes con chips interactivos
+- **Filtros Múltiples** para plataformas y regiones con chips interactivos
 - **Paginación Infinita** con carga diferida automática
 - **Visualización de ROMs** con portadas centradas y proporcionadas
-- **Carrusel de Imágenes**: Múltiples imágenes por ROM (portada, capturas de pantalla) con carrusel deslizable
-- **Carga Diferida de Imágenes**: Las imágenes se cargan solo cuando son visibles en pantalla para mejor rendimiento
 
 ### 📥 Descarga e Instalación
 - **Descargas en Segundo Plano** con WorkManager para confiabilidad
-- **Seguimiento de Progreso en Tiempo Real** con porcentaje, bytes descargados y velocidad (también visible desde el detalle de ROM)
+- **Seguimiento de Progreso en Tiempo Real** con porcentaje, bytes descargados y velocidad
 - **Notificaciones Interactivas** con acciones "Cancelar descarga" y "Cancelar instalación"
-- **Descargas Múltiples Simultáneas** con progreso y notificaciones separadas para cada tarea
 - **Ruta Personalizada** para guardar archivos en cualquier carpeta (incluida tarjeta SD externa)
 - **Instalación Automática/Manual**:
   - Soporte para archivos ZIP (extracción)
@@ -249,7 +233,6 @@ El APK se generará en: `app/build/outputs/apk/`
 - Manejo de errores con reintento automático
 - Verificación de espacio disponible
 - Soporte para tarjeta SD externa
-- Gestión de cookies de sesión para fuentes que lo requieren
 
 ### Instalación
 - Extracción de archivos ZIP

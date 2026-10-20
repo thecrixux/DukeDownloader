@@ -1,5 +1,6 @@
 package com.tottodrillo.presentation.sources
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,10 +30,10 @@ fun SourcesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gestione Sorgenti") },
+                title = { Text(stringResource(com.tottodrillo.R.string.settings_sources)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Indietro")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(com.tottodrillo.R.string.back))
                     }
                 }
             )
@@ -78,12 +79,12 @@ private fun EmptySourcesView() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Nessuna sorgente installata",
+            text = stringResource(com.tottodrillo.R.string.sources_list_empty),
             style = MaterialTheme.typography.headlineSmall
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Installa almeno una sorgente per iniziare a cercare ROM",
+            text = stringResource(com.tottodrillo.R.string.sources_no_sources_info),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -124,13 +125,13 @@ private fun SourceItem(
                         )
                     }
                     Text(
-                        text = "Versione: ${source.version}",
+                        text = stringResource(com.tottodrillo.R.string.sources_version_label, source.version),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     if (source.author != null) {
                         Text(
-                            text = "Autore: ${source.author}",
+                            text = stringResource(com.tottodrillo.R.string.settings_author_label, source.author.orEmpty()),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -146,7 +147,7 @@ private fun SourceItem(
             Spacer(modifier = Modifier.height(8.dp))
             
             TextButton(onClick = { showUninstallDialog = true }) {
-                Text("Disinstalla")
+                Text(stringResource(com.tottodrillo.R.string.sources_uninstall))
             }
         }
     }
@@ -154,8 +155,8 @@ private fun SourceItem(
     if (showUninstallDialog) {
         AlertDialog(
             onDismissRequest = { showUninstallDialog = false },
-            title = { Text("Disinstalla sorgente") },
-            text = { Text("Vuoi davvero disinstallare ${source.name}?") },
+            title = { Text(stringResource(com.tottodrillo.R.string.sources_uninstall)) },
+            text = { Text(stringResource(com.tottodrillo.R.string.source_uninstall_confirmation, source.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -163,12 +164,12 @@ private fun SourceItem(
                         showUninstallDialog = false
                     }
                 ) {
-                    Text("Disinstalla")
+                    Text(stringResource(com.tottodrillo.R.string.sources_uninstall))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showUninstallDialog = false }) {
-                    Text("Annulla")
+                    Text(stringResource(com.tottodrillo.R.string.cancel))
                 }
             }
         )

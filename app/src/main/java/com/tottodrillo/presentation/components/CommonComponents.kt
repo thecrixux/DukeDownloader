@@ -1,5 +1,6 @@
 package com.tottodrillo.presentation.components
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +32,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import com.tottodrillo.data.cache.RomPreviewEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,20 +76,8 @@ fun RomCard(
                     .aspectRatio(0.75f),
                 contentAlignment = Alignment.Center
             ) {
-                // Prepara la lista di URL da provare in ordine:
-                // 1. coverUrl (se presente)
-                // 2. Tutti gli altri elementi di coverUrls (placeholder inclusi)
-                val urlsToTry = mutableListOf<String>()
-                if (rom.coverUrl != null) {
-                    urlsToTry.add(rom.coverUrl)
-                }
-                // Aggiungi tutti gli elementi di coverUrls che non sono già coverUrl
-                rom.coverUrls.forEach { url ->
-                    if (url !in urlsToTry) {
-                        urlsToTry.add(url)
-                    }
-                }
-                
+                val urlsToTry by rememberFrontCoverUrls(rom, shouldLoadImage)
+
                 if (shouldLoadImage && urlsToTry.isNotEmpty()) {
                     // Usa un composable ricorsivo per provare tutte le immagini in sequenza
                     TryImageUrls(
@@ -122,7 +117,7 @@ fun RomCard(
                     ) {
                         Icon(
                             imageVector = if (rom.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = "Favorite",
+                            contentDescription = stringResource(com.tottodrillo.R.string.favorite),
                             tint = if (rom.isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -331,7 +326,7 @@ fun LoadingIndicator(
                 Spacer(modifier = Modifier.height(16.dp))
                 // Nome dell'app
                 Text(
-                    text = "Tottodrillo",
+                    text = androidx.compose.ui.res.stringResource(com.tottodrillo.R.string.app_name),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground

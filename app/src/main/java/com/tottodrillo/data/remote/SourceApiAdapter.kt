@@ -60,6 +60,7 @@ class SourceApiAdapter(
                 }
             )
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -87,6 +88,7 @@ class SourceApiAdapter(
                 }
             )
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -113,6 +115,7 @@ class SourceApiAdapter(
                 }
             )
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -138,6 +141,7 @@ class SourceApiAdapter(
                 }
             )
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }

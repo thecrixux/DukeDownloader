@@ -94,6 +94,7 @@ object MobyGamesFeedParser {
                 eventType = parser.next()
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             android.util.Log.e("MobyGamesFeedParser", "Errore nel parsing del feed", e)
         }
         

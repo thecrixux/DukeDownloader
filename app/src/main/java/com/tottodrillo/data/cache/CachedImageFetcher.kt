@@ -67,13 +67,26 @@ class CachedImageFetcher(
                     .url(httpUrl)
                     .build()
                 
-                val response = callFactory.newCall(request).execute()
+                callFactory.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     return@withContext null
                 }
                 
                 val body = response.body ?: return@withContext null
-                val imageBytes = body.bytes()
+                val mime = body.contentType()?.toString().orEmpty()
+                if (mime.startsWith("text/html") || mime.startsWith("application/json")) return@withContext null
+                val imageBytes = body.byteStream().use { input ->
+                    val bytes = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(8192)
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        if (bytes.size() + count > 8 * 1024 * 1024) return@withContext null
+                        bytes.write(buffer, 0, count)
+                    }
+                    bytes.toByteArray()
+                }
+                if (imageBytes.isEmpty()) return@withContext null
                 
                 // Salva in cache
                 val savedPath = cacheManager.saveImageToCache(data, imageBytes)
@@ -96,6 +109,9 @@ class CachedImageFetcher(
                         dataSource = DataSource.NETWORK
                     )
                 }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 android.util.Log.e("CachedImageFetcher", "❌ Errore caricamento immagine: $data", e)
                 null

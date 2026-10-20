@@ -14,7 +14,8 @@ data class DownloadConfig(
     val romInfoSearchProvider: String = "gamefaqs", // "gamefaqs" o "mobygames"
     val igdbEnabled: Boolean = false,
     val igdbClientId: String? = null,
-    val igdbClientSecret: String? = null
+    val igdbClientSecret: String? = null,
+    val downloadConnections: Int = 4
 )
 
 /**

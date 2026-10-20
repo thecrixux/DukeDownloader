@@ -116,7 +116,7 @@ class SearchViewModel @Inject constructor(
     private fun observeSearchQuery() {
         viewModelScope.launch {
             _searchQuery
-                .debounce(500) // Attende 500ms dopo l'ultimo input
+                .debounce(250) // Attende 500ms dopo l'ultimo input
                 .distinctUntilChanged()
                 .collect { query ->
                     // Esegui ricerca solo se:
@@ -197,6 +197,9 @@ class SearchViewModel @Inject constructor(
      * Aggiorna la query di ricerca
      */
     fun updateSearchQuery(query: String) {
+        currentSearchJob?.cancel()
+        currentLoadMoreJob?.cancel()
+        _uiState.update { it.copy(isSearching = false) }
         _searchQuery.value = query
         _uiState.update { 
             it.copy(
@@ -310,7 +313,7 @@ class SearchViewModel @Inject constructor(
                     if (!isActive) return@launch
                     
                     _uiState.update { state ->
-                        val allResults = state.results + result.data
+                        val allResults = (state.results + result.data).distinctBy { it.slug }
                         // Aggiorna le regioni disponibili con i nuovi risultati
                         val availableRegions = extractRegionsFromResults(allResults)
                         

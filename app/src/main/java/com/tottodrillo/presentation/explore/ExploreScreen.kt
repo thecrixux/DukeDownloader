@@ -202,7 +202,7 @@ private fun CategorySection(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = "${category.platforms.size} piattaforme",
+                        text = stringResource(com.tottodrillo.R.string.platform_count, category.platforms.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -212,7 +212,7 @@ private fun CategorySection(
             // Icona espandi/collassa
             Icon(
                 imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (isExpanded) "Collassa" else "Espandi",
+                contentDescription = if (isExpanded) stringResource(com.tottodrillo.R.string.collapse) else stringResource(com.tottodrillo.R.string.expand),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)
             )

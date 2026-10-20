@@ -62,20 +62,27 @@ class RomCacheManager @Inject constructor(
         return imagesDir
     }
     
+    private fun safeCacheName(value: String): String = java.security.MessageDigest.getInstance("SHA-256")
+        .digest(value.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
+
     /**
      * Salva una ROM in cache (senza download links)
      */
     suspend fun saveRomToCache(rom: Rom) = withContext(Dispatchers.IO) {
         try {
             val dataDir = getDataCacheDirectory()
-            val cacheFile = File(dataDir, "${rom.slug}.json")
+            val cacheFile = File(dataDir, "${safeCacheName(rom.slug)}.json")
             
             // Crea una copia della ROM senza download links
             val romWithoutLinks = rom.copy(downloadLinks = emptyList())
             
             // Salva in JSON
             val json = gson.toJson(romWithoutLinks)
-            cacheFile.writeText(json)
+            val temp = File.createTempFile("rom-cache-", ".tmp", dataDir)
+            try {
+                temp.writeText(json)
+                java.nio.file.Files.move(temp.toPath(), cacheFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            } finally { temp.delete() }
             
         } catch (e: Exception) {
             android.util.Log.e("RomCacheManager", "❌ Errore salvataggio ROM in cache", e)
@@ -88,7 +95,7 @@ class RomCacheManager @Inject constructor(
     suspend fun loadRomFromCache(slug: String): Rom? = withContext(Dispatchers.IO) {
         try {
             val dataDir = getDataCacheDirectory()
-            val cacheFile = File(dataDir, "$slug.json")
+            val cacheFile = File(dataDir, "${safeCacheName(slug)}.json")
             
             if (!cacheFile.exists()) {
                 return@withContext null
@@ -115,11 +122,14 @@ class RomCacheManager @Inject constructor(
             val imagesDir = getImagesCacheDirectory()
             
             // Crea un nome file sicuro dall'URL
-            val fileName = url.hashCode().toString() + "_" + url.substringAfterLast("/").take(50)
-                .replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            val fileName = safeCacheName(url)
             
             val imageFile = File(imagesDir, fileName)
-            imageFile.writeBytes(imageBytes)
+            val temp = File.createTempFile("image-cache-", ".tmp", imagesDir)
+            try {
+                temp.writeBytes(imageBytes)
+                java.nio.file.Files.move(temp.toPath(), imageFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            } finally { temp.delete() }
             
             // Restituisci il percorso locale (file://)
             val localPath = "file://${imageFile.absolutePath}"
@@ -140,11 +150,10 @@ class RomCacheManager @Inject constructor(
             val imagesDir = getImagesCacheDirectory()
             
             // Cerca il file con lo stesso hash
-            val fileName = url.hashCode().toString() + "_" + url.substringAfterLast("/").take(50)
-                .replace(Regex("[^a-zA-Z0-9._-]"), "_")
+            val fileName = safeCacheName(url)
             
             val imageFile = File(imagesDir, fileName)
-            if (imageFile.exists()) {
+            if (imageFile.isFile && imageFile.length() > 0) {
                 return@withContext "file://${imageFile.absolutePath}"
             }
             
@@ -175,7 +184,7 @@ class RomCacheManager @Inject constructor(
     suspend fun clearRomCache(slug: String) = withContext(Dispatchers.IO) {
         try {
             val dataDir = getDataCacheDirectory()
-            val cacheFile = File(dataDir, "$slug.json")
+            val cacheFile = File(dataDir, "${safeCacheName(slug)}.json")
             if (cacheFile.exists()) {
                 cacheFile.delete()
             }

@@ -5,6 +5,7 @@ import android.os.Environment
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -27,6 +28,7 @@ class DownloadConfigRepository @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) {
     private companion object {
+        val DOWNLOAD_CONNECTIONS = intPreferencesKey("download_connections")
         val DOWNLOAD_PATH = stringPreferencesKey("download_path")
         val AUTO_EXTRACT = booleanPreferencesKey("auto_extract_archives")
         val DELETE_AFTER_EXTRACT = booleanPreferencesKey("delete_archive_after_extraction")
@@ -46,7 +48,9 @@ class DownloadConfigRepository @Inject constructor(
      */
     val downloadConfig: Flow<DownloadConfig> = appContext.dataStore.data.map { preferences ->
         DownloadConfig(
-            downloadPath = preferences[DOWNLOAD_PATH] ?: getDefaultDownloadPath(),
+            downloadPath = com.tottodrillo.data.covers.DownloadDirectoryPolicy.resolve(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), preferences[DOWNLOAD_PATH]
+            ),
             autoExtractArchives = preferences[AUTO_EXTRACT] ?: true,
             deleteArchiveAfterExtraction = preferences[DELETE_AFTER_EXTRACT] ?: false,
             useWifiOnly = preferences[WIFI_ONLY] ?: false,
@@ -56,6 +60,7 @@ class DownloadConfigRepository @Inject constructor(
             romInfoSearchProvider = preferences[ROM_INFO_SEARCH_PROVIDER] ?: "gamefaqs",
             igdbEnabled = preferences[IGDB_ENABLED] ?: false,
             igdbClientId = preferences[IGDB_CLIENT_ID],
+            downloadConnections = preferences[DOWNLOAD_CONNECTIONS]?.takeIf { it in setOf(1, 2, 4) } ?: 4,
             igdbClientSecret = preferences[IGDB_CLIENT_SECRET]
         )
     }
@@ -134,13 +139,12 @@ class DownloadConfigRepository @Inject constructor(
         val publicDownloads = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOWNLOADS
         )
-        val tottodrilloFolder = File(publicDownloads, "Tottodrillo")
-        
-        if (!tottodrilloFolder.exists()) {
-            tottodrilloFolder.mkdirs()
-        }
-        
-        return tottodrilloFolder.absolutePath
+        return com.tottodrillo.data.covers.DownloadDirectoryPolicy.resolve(publicDownloads, null)
+    }
+
+    suspend fun setDownloadConnections(connections: Int) {
+        require(connections in setOf(1, 2, 4))
+        appContext.dataStore.edit { it[DOWNLOAD_CONNECTIONS] = connections }
     }
 
     suspend fun setIgdbEnabled(enabled: Boolean) {

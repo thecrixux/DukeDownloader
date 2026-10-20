@@ -1,5 +1,6 @@
 package com.tottodrillo.presentation.components
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,7 +52,7 @@ fun UpdateDialog(
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Text(
-                    text = "Aggiornamento disponibile",
+                    text = stringResource(com.tottodrillo.R.string.sources_update_available),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -65,7 +66,7 @@ fun UpdateDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "È disponibile una nuova versione: ${release.name}",
+                    text = stringResource(com.tottodrillo.R.string.app_update_version, release.name),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -82,7 +83,7 @@ fun UpdateDialog(
                 if (apkAsset != null) {
                     val sizeMB = apkAsset.size / (1024.0 * 1024.0)
                     Text(
-                        text = "Dimensione: ${String.format("%.1f", sizeMB)} MB",
+                        text = stringResource(com.tottodrillo.R.string.download_file_size, sizeMB),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -95,14 +96,14 @@ fun UpdateDialog(
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Text(
-                    text = "Scarica",
+                    text = stringResource(com.tottodrillo.R.string.rom_detail_download),
                     fontWeight = FontWeight.SemiBold
                 )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Più tardi")
+                Text(stringResource(com.tottodrillo.R.string.permission_dialog_later))
             }
         }
     )

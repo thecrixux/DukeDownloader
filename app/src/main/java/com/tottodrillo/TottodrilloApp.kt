@@ -25,6 +25,10 @@ import com.google.gson.Gson
  */
 @HiltAndroidApp
 class TottodrilloApp : Application(), ImageLoaderFactory {
+    companion object {
+        var instance: TottodrilloApp? = null
+            private set
+    }
     
     @Inject
     lateinit var sourceManager: com.tottodrillo.domain.manager.SourceManager
@@ -40,6 +44,7 @@ class TottodrilloApp : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         
         // Inizializza Chaquopy per supporto Python nelle sorgenti
         if (!Python.isStarted()) {
@@ -73,19 +78,6 @@ class TottodrilloApp : Application(), ImageLoaderFactory {
                 return cookies.filter { it.matches(url) }
             }
         }
-        
-        // Configura SSL per accettare certificati (necessario per alcune sorgenti con certificati self-signed)
-        // Nota: In produzione, dovresti usare certificati validi
-        val trustAllCerts = arrayOf<javax.net.ssl.TrustManager>(
-            object : javax.net.ssl.X509TrustManager {
-                override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>?, authType: String?) {}
-                override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>?, authType: String?) {}
-                override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
-            }
-        )
-        val sslContext = javax.net.ssl.SSLContext.getInstance("SSL")
-        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
-        val sslSocketFactory = sslContext.socketFactory
         
         // Interceptor per aggiungere Referer header alle immagini se richiesto dalla source
         // La logica è generica e basata su imageRefererPattern nel metadata
@@ -139,8 +131,6 @@ class TottodrilloApp : Application(), ImageLoaderFactory {
         val okHttpClient = OkHttpClient.Builder()
             .cookieJar(cookieJar)
             .addInterceptor(refererInterceptor)
-            .sslSocketFactory(sslSocketFactory, trustAllCerts[0] as javax.net.ssl.X509TrustManager)
-            .hostnameVerifier { _, _ -> true }
             .build()
         
         return ImageLoader.Builder(this)

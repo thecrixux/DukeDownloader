@@ -1,5 +1,6 @@
 package com.tottodrillo.presentation.platform
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -94,7 +95,7 @@ fun PlatformRomsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(com.tottodrillo.R.string.back)
                         )
                     }
                 },
@@ -117,12 +118,12 @@ fun PlatformRomsScreen(
                 }
                 uiState.error != null && romsForPlatform.isNullOrEmpty() -> {
                     EmptyState(
-                        message = "Errore: ${uiState.error}"
+                        message = uiState.error.orEmpty()
                     )
                 }
                 romsForPlatform.isNullOrEmpty() -> {
                     EmptyState(
-                        message = "Nessuna ROM trovata per ${platformCode.uppercase()}"
+                        message = androidx.compose.ui.res.stringResource(com.tottodrillo.R.string.search_no_results, platformCode.uppercase())
                     )
                 }
                 else -> {
@@ -132,7 +133,7 @@ fun PlatformRomsScreen(
                             val layoutInfo = gridState.layoutInfo
                             val visibleIndices = layoutInfo.visibleItemsInfo.map { it.index }
                             // Prendi i primi 10 indici visibili
-                            visibleIndices.take(10).toSet()
+                            visibleIndices.toSet()
                         }
                     }
                     

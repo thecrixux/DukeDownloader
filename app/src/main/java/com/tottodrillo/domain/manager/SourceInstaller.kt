@@ -137,23 +137,9 @@ class SourceInstaller @Inject constructor(
      * Estrae un file ZIP
      */
     private fun extractZip(zipFile: File, targetDir: File) {
-        ZipInputStream(FileInputStream(zipFile)).use { zis ->
-            var entry = zis.nextEntry
-            while (entry != null) {
-                val file = File(targetDir, entry.name)
-                
-                if (entry.isDirectory) {
-                    file.mkdirs()
-                } else {
-                    file.parentFile?.mkdirs()
-                    file.outputStream().use { zis.copyTo(it) }
-                }
-                
-                entry = zis.nextEntry
-            }
-        }
+        com.tottodrillo.data.download.SafeSourceArchive.extract(zipFile, targetDir)
     }
-    
+
     /**
      * Cerca il file source.json nello ZIP estratto
      * Supporta sia struttura piatta (source.json nella root) che struttura a cartella (cartella/source.json)
@@ -182,7 +168,7 @@ class SourceInstaller @Inject constructor(
      * Valida i metadata della sorgente
      */
     private fun validateMetadata(metadata: SourceMetadata) {
-        require(metadata.id.isNotBlank()) { "ID sorgente non può essere vuoto" }
+        require(com.tottodrillo.data.download.SafeSourceArchive.validId(metadata.id)) { "Invalid source ID" }
         require(metadata.name.isNotBlank()) { "Nome sorgente non può essere vuoto" }
         require(metadata.version.isNotBlank()) { "Versione sorgente non può essere vuota" }
         

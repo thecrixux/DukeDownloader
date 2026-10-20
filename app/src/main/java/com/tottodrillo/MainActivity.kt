@@ -540,7 +540,7 @@ class MainActivity : ComponentActivity() {
                 
                 for (volume in storageVolumes) {
                     val volumeUuid = volume.uuid
-                    val volumePath = volume.directory?.path
+                    val volumePath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) volume.directory?.path else null
                     
                     android.util.Log.d("MainActivity", "  - Volume: uuid=$volumeUuid, path=$volumePath, isRemovable=${volume.isRemovable}, isPrimary=${volume.isPrimary}")
                     
@@ -607,120 +607,9 @@ class MainActivity : ComponentActivity() {
      * Legge le informazioni dal file sources-versions.json nel repository Tottodrillo-Source
      */
     private suspend fun installDefaultSources() = withContext(Dispatchers.IO) {
-        val sourcesVersionsUrl = "https://raw.githubusercontent.com/mccoy88f/Tottodrillo-Source/refs/heads/main/sources-versions.json"
-        
-        try {
-            // Scarica il file sources-versions.json
-            val listRequest = Request.Builder()
-                .url(sourcesVersionsUrl)
-                .header("Accept", "application/json")
-                .build()
-            
-            val listResponse = okHttpClient.newCall(listRequest).execute()
-            if (!listResponse.isSuccessful) {
-                android.util.Log.e("MainActivity", "❌ Errore download sources-versions.json: ${listResponse.code}")
-                return@withContext
-            }
-            
-            // Leggi il JSON
-            val responseBody = listResponse.body?.string()
-            if (responseBody == null) {
-                android.util.Log.e("MainActivity", "❌ Response body null")
-                return@withContext
-            }
-            
-            // Parse del JSON
-            val gson = com.google.gson.Gson()
-            val versionsResponse = gson.fromJson(
-                responseBody,
-                SourcesVersionsResponse::class.java
-            )
-            
-            val sources = versionsResponse.sources
-            if (sources.isEmpty()) {
-                android.util.Log.w("MainActivity", "⚠️ Nessuna sorgente trovata in sources-versions.json")
-                return@withContext
-            }
-            
-            android.util.Log.d("MainActivity", "📋 Trovate ${sources.size} sorgenti in sources-versions.json")
-            
-            val installer = com.tottodrillo.domain.manager.SourceInstaller(
-                this@MainActivity,
-                sourceManager
-            )
-            
-            // Verifica versione app corrente
-            val currentAppVersion = try {
-                val packageInfo = packageManager.getPackageInfo(
-                    packageName,
-                    android.content.pm.PackageManager.GET_META_DATA
-                )
-                packageInfo.versionName ?: "0.0.0"
-            } catch (e: Exception) {
-                "0.0.0"
-            }
-            
-            // Scarica e installa ogni sorgente
-            for (sourceInfo in sources) {
-                // Verifica compatibilità con versione app
-                if (sourceInfo.minAppVersion != null) {
-                    if (!isVersionNewerOrEqual(currentAppVersion, sourceInfo.minAppVersion)) {
-                        android.util.Log.w(
-                            "MainActivity",
-                            "⚠️ Sorgente ${sourceInfo.id} richiede app versione ${sourceInfo.minAppVersion}, attuale: $currentAppVersion"
-                        )
-                        continue
-                    }
-                }
-                
-                val url = sourceInfo.downloadUrl
-                try {
-                    
-                    // Scarica il file ZIP
-                    val request = Request.Builder()
-                        .url(url)
-                        .build()
-                    
-                    val response = okHttpClient.newCall(request).execute()
-                    if (!response.isSuccessful) {
-                        android.util.Log.e("MainActivity", "❌ Errore download sorgente da $url: ${response.code}")
-                        continue
-                    }
-                    
-                    // Usa l'ID della sorgente dal JSON
-                    val sourceId = sourceInfo.id
-                    
-                    // Salva in un file temporaneo
-                    val tempFile = File(this@MainActivity.cacheDir, "source_${sourceId}_${System.currentTimeMillis()}.zip")
-                    response.body?.byteStream()?.use { input ->
-                        tempFile.outputStream().use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                    
-                    // Installa la sorgente
-                    val result = installer.installFromZip(tempFile)
-                    result.fold(
-                        onSuccess = { metadata ->
-                            // Abilita la sorgente di default
-                            sourceManager.setSourceEnabled(metadata.id, true)
-                        },
-                        onFailure = { error ->
-                            android.util.Log.e("MainActivity", "❌ Errore installazione sorgente $sourceId", error)
-                        }
-                    )
-                    
-                    // Pulisci file temporaneo
-                    tempFile.delete()
-                } catch (e: Exception) {
-                    android.util.Log.e("MainActivity", "❌ Errore durante installazione sorgente da $url", e)
-                }
-            }
-        } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "❌ Errore durante download sources-versions.json", e)
-        }
+        com.tottodrillo.domain.manager.BundledSourceInstaller(this@MainActivity, sourceManager).install()
     }
-    
+
     /**
      * Verifica se una versione è più recente o uguale a un'altra
      */

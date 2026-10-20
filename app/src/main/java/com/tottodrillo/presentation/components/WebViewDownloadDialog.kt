@@ -111,7 +111,7 @@ fun WebViewDownloadDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Indietro"
+                            contentDescription = stringResource(com.tottodrillo.R.string.back)
                         )
                     }
                     
@@ -438,7 +438,7 @@ fun WebViewDownloadDialog(
                                     ) {
                                         super.onReceivedError(view, errorCode, description, failingUrl)
                                         isLoading = false
-                                        error = description ?: "Errore nel caricamento della pagina"
+                                        error = description ?: context.getString(com.tottodrillo.R.string.rom_info_search_error)
                                     }
                                 }
 
@@ -610,7 +610,7 @@ fun WebViewDownloadDialog(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(onClick = onDismiss) {
-                                Text("Chiudi")
+                                Text(stringResource(com.tottodrillo.R.string.close))
                             }
                         }
                     }
@@ -619,7 +619,7 @@ fun WebViewDownloadDialog(
                 // Footer con informazioni
                 Divider()
                 Text(
-                    text = "Procedi manualmente al download, se si apre un pop up torna indietro e riprova.",
+                    text = stringResource(com.tottodrillo.R.string.webview_manual_instructions),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(16.dp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant

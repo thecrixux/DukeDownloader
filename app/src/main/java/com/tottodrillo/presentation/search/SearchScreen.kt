@@ -339,7 +339,7 @@ private fun SearchBar(
                 IconButton(onClick = onClear) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Clear",
+                        contentDescription = stringResource(com.tottodrillo.R.string.search_clear_filters),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -418,7 +418,7 @@ private fun SearchResults(
             val layoutInfo = gridState.layoutInfo
             val visibleIndices = layoutInfo.visibleItemsInfo.map { it.index }
             // Prendi i primi 10 indici visibili
-            visibleIndices.take(10).toSet()
+            visibleIndices.toSet()
         }
     }
     

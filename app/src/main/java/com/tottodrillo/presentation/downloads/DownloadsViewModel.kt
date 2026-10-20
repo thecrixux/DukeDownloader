@@ -89,7 +89,7 @@ class DownloadsViewModel @Inject constructor(
                 _uiState.update { 
                     it.copy(
                         isLoading = false, 
-                        error = e.message ?: "Errore durante avvio download"
+                        error = e.message ?: configRepository.context.getString(com.tottodrillo.R.string.rom_detail_download_error)
                     )
                 }
             }
@@ -148,7 +148,7 @@ class DownloadsViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(error = e.message ?: "Errore durante l'estrazione")
+                    it.copy(error = e.message ?: configRepository.context.getString(com.tottodrillo.R.string.rom_detail_extraction_error))
                 }
             }
         }
@@ -163,7 +163,7 @@ class DownloadsViewModel @Inject constructor(
                 configRepository.setDownloadPath(path)
             } else {
                 _uiState.update { 
-                    it.copy(error = "Path non valido o non scrivibile")
+                    it.copy(error = configRepository.context.getString(com.tottodrillo.R.string.invalid_download_path))
                 }
             }
         }
@@ -188,6 +188,10 @@ class DownloadsViewModel @Inject constructor(
     /**
      * Aggiorna WiFi only
      */
+    fun updateDownloadConnections(connections: Int) {
+        viewModelScope.launch { configRepository.setDownloadConnections(connections) }
+    }
+
     fun updateWifiOnly(enabled: Boolean) {
         viewModelScope.launch {
             configRepository.setWifiOnly(enabled)
@@ -221,7 +225,7 @@ class DownloadsViewModel @Inject constructor(
                 configRepository.setEsDeRomsPath(path)
             } else {
                 _uiState.update { 
-                    it.copy(error = "Path non valido o non scrivibile")
+                    it.copy(error = configRepository.context.getString(com.tottodrillo.R.string.invalid_download_path))
                 }
             }
         }
@@ -285,7 +289,7 @@ class DownloadsViewModel @Inject constructor(
                 
                 if (!downloadDir.exists() || !downloadDir.isDirectory) {
                     _uiState.update { 
-                        it.copy(error = "Cartella di download non trovata")
+                        it.copy(error = configRepository.context.getString(com.tottodrillo.R.string.no_download_folder))
                     }
                     return@launch
                 }
@@ -311,12 +315,12 @@ class DownloadsViewModel @Inject constructor(
                 }
 
                 _uiState.update { 
-                    it.copy(error = if (deletedCount > 0) null else "Nessun file .status trovato")
+                    it.copy(error = if (deletedCount > 0) null else configRepository.context.getString(com.tottodrillo.R.string.no_history_files))
                 }
                 _showClearHistoryDialog.update { false }
             } catch (e: Exception) {
                 _uiState.update { 
-                    it.copy(error = "Errore durante la cancellazione: ${e.message}")
+                    it.copy(error = configRepository.context.getString(com.tottodrillo.R.string.error_details, e.message.orEmpty()))
                 }
             }
         }

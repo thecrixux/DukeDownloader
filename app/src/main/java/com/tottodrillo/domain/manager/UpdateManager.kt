@@ -91,6 +91,9 @@ class UpdateManager @Inject constructor(
      * @return GitHubRelease se c'è un aggiornamento disponibile, null altrimenti
      */
     suspend fun checkForUpdate(): GitHubRelease? = withContext(Dispatchers.IO) {
+        // This test build has a different application ID and signing key.
+        // Upstream APKs cannot update it and would install a separate application.
+        if (context.packageName.endsWith(".ps2emu")) return@withContext null
         try {
             val request = Request.Builder()
                 .url(GITHUB_API_URL)

@@ -11,11 +11,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.tottodrillo"
+        applicationId = "com.dukedownloader.ps2emu"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10
-        versionName = "3.1.0"
+        versionCode = 12
+        versionName = "3.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -30,6 +30,8 @@ android {
 
     buildTypes {
         debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
             isMinifyEnabled = false
             isDebuggable = true
         }
@@ -70,6 +72,7 @@ android {
 chaquopy {
     defaultConfig {
         version = "3.11"
+        providers.gradleProperty("buildPython").orNull?.let { buildPython(it) }
         pip {
             // Dipendenze Python comuni per le sorgenti
             install("requests")
@@ -133,6 +136,7 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))

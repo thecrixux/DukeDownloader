@@ -97,6 +97,9 @@ class SourceUpdateManager @Inject constructor(
      * Verifica se ci sono aggiornamenti disponibili per le sorgenti installate
      */
     suspend fun checkForUpdates(installedSources: List<Source>): List<SourceUpdate> = withContext(Dispatchers.IO) {
+        // Bundled sources have no entry in the upstream registry. Do not make
+        // an unnecessary network call (or replace them with unrelated packages).
+        if (installedSources.all { it.id in BundledSourceInstaller.ids }) return@withContext emptyList()
         try {
             val versionsResult = fetchAvailableVersions()
             if (versionsResult.isFailure) {

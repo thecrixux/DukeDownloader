@@ -564,7 +564,7 @@ class RomDetailViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isLoadingLinks = false,
-                                error = "Errore nel caricamento dei link di download: ${result.exception.getUserMessage()}"
+                                error = context.getString(com.tottodrillo.R.string.error_details, result.exception.getUserMessage())
                             )
                         }
                     }
@@ -577,7 +577,7 @@ class RomDetailViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoadingLinks = false,
-                        error = "Errore nel caricamento dei link: ${e.message}"
+                        error = context.getString(com.tottodrillo.R.string.error_details, e.message.orEmpty())
                     )
                 }
             }

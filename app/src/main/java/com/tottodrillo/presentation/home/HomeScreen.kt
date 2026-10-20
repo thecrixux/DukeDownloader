@@ -111,7 +111,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.size(12.dp))
                         Text(
-                            text = "Tottodrillo",
+                            text = androidx.compose.ui.res.stringResource(com.tottodrillo.R.string.app_name),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )

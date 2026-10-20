@@ -60,6 +60,7 @@ class JavaSourceExecutor(
                 Result.failure(IllegalStateException("searchRoms ha ritornato null"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -74,6 +75,7 @@ class JavaSourceExecutor(
                 Result.failure(IllegalStateException("getEntry ha ritornato null"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -89,6 +91,7 @@ class JavaSourceExecutor(
                 Result.failure(IllegalStateException("getPlatforms ha ritornato null"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -103,6 +106,7 @@ class JavaSourceExecutor(
                 Result.failure(IllegalStateException("getRegions ha ritornato null"))
             }
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             Result.failure(e)
         }
     }
@@ -169,6 +173,7 @@ class JavaSourceExecutor(
                     }
                 }
             } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 throw IllegalStateException("Impossibile trovare costruttore valido per $mainClass", e)
             }
             

@@ -1,5 +1,8 @@
 package com.tottodrillo.presentation.search
 
+import com.tottodrillo.presentation.components.localizedDisplayName
+
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -70,7 +73,7 @@ fun SearchFiltersBottomSheet(
                 .map { it.code to it.displayName }
                 .sortedBy { it.second }, // Ordina alfabeticamente per nome
             availableRegions = uiState.availableRegions
-                .map { it.code to it.displayName }
+                .map { it.code to it.localizedDisplayName() }
                 .sortedBy { it.second }, // Ordina alfabeticamente per nome
             availableSources = uiState.availableSources
                 .sortedBy { it.second }, // Ordina alfabeticamente per nome
@@ -142,7 +145,7 @@ private fun FiltersContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Filtri di Ricerca",
+                text = stringResource(com.tottodrillo.R.string.search_filters),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -151,7 +154,7 @@ private fun FiltersContent(
                 onClick = onClearAll,
                 enabled = selectedPlatforms.isNotEmpty() || selectedRegions.isNotEmpty() || selectedSources.isNotEmpty()
             ) {
-                Text("Cancella tutto")
+                Text(stringResource(com.tottodrillo.R.string.search_clear_filters))
             }
         }
 
@@ -255,7 +258,7 @@ private fun FilterSection(
         if (selectedItems.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "${selectedItems.size} selezionat${if (selectedItems.size == 1) "o" else "i"}",
+                text = stringResource(com.tottodrillo.R.string.selection_count, selectedItems.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary
             )
