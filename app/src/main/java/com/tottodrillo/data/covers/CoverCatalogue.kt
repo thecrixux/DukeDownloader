@@ -37,7 +37,7 @@ class CoverCatalogue(
 ) {
     companion object {
         val repositories = mapOf(
-            "ps2" to "Sony_-_PlayStation_2", "psx" to "Sony_-_PlayStation", "ps1" to "Sony_-_PlayStation",
+            "wiiware" to "Nintendo_-_WiiWare", "ps2" to "Sony_-_PlayStation_2", "psx" to "Sony_-_PlayStation", "ps1" to "Sony_-_PlayStation",
             "psp" to "Sony_-_PlayStation_Portable", "wii" to "Nintendo_-_Wii", "wiiu" to "Nintendo_-_Wii_U",
             "gc" to "Nintendo_-_GameCube", "gamecube" to "Nintendo_-_GameCube",
             "nes" to "Nintendo_-_Nintendo_Entertainment_System", "snes" to "Nintendo_-_Super_Nintendo_Entertainment_System",
@@ -67,14 +67,14 @@ class CoverCatalogue(
     private val requests = Semaphore(2)
     @Volatile private var apiRetryAt = 0L
 
-    fun supports(platform: String) = platform.lowercase() in repositories
+    fun supports(platform: String) = CoverMatcher.platformCode(platform) in repositories
 
     suspend fun resolve(platform: String, title: String, regions: List<String>): Cover? = withContext(Dispatchers.IO) {
-        val code = platform.lowercase()
+        val code = CoverMatcher.platformCode(platform)
         val repo = repositories[code] ?: return@withContext null
         val index = locks[(repo.hashCode() and Int.MAX_VALUE) % locks.size].withLock { load(code, repo) }
             ?: return@withContext null
-        val selected = CoverMatcher.choose(title, regions, index.entries) ?: return@withContext null
+        val selected = CoverMatcher.chooseCover(title, regions, index.entries, code) ?: return@withContext null
         val url = index.urls[selected.filename] ?: "https://raw.githubusercontent.com/".toHttpUrl().newBuilder()
             .addPathSegment("libretro-thumbnails").addPathSegment(repo).addPathSegment(index.revision)
             .addPathSegment("Named_Boxarts").addPathSegment(selected.filename).build().toString()
@@ -83,14 +83,19 @@ class CoverCatalogue(
 
     private suspend fun load(code: String, repo: String): Index? {
         val file = File(directory, "$repo.json")
-        var current = memory[repo] ?: runCatching { decode(file.readText(), file.lastModified()) }.getOrNull()
+        memory[repo]?.let { if (clock() - it.fetched < FRESH_MS) return it }
+        var current = runCatching { decode(file.readText(), file.lastModified()) }.getOrNull()
+        if (code in setOf("ps2", "wii", "gc", "gamecube", "wiiware")) {
+            val shipped = bundled(code)?.let { runCatching { decode(it, clock()) }.getOrNull() }
+            current = shipped ?: current
+        }
         if (current == null) {
             current = bundled(code)?.let { runCatching { decode(it, clock()) }.getOrNull() }
             if (current != null) write(file, current)
         }
         if (current != null) memory[repo] = current
         // Serial-based catalogues must never be replaced by a different provider's title list.
-        if (code in setOf("ps2", "wii", "gc", "gamecube")) return current
+        if (code in setOf("ps2", "wii", "gc", "gamecube", "wiiware")) return current
         if (current != null && clock() - current.fetched < FRESH_MS) return current
         if (clock() < (retryAt[repo] ?: 0L) || clock() < apiRetryAt) return current
         retryAt[repo] = clock() + RETRY_MS
@@ -105,7 +110,11 @@ class CoverCatalogue(
             if (images.get("truncated")?.asBoolean == true) throw IOException("Truncated boxart index")
             val filenames = images.getAsJsonArray("tree").mapNotNull {
                 val entry = it.asJsonObject
-                entry.get("path")?.asString?.takeIf { name -> entry.get("type")?.asString == "blob" && name.endsWith(".png") }
+                entry.get("path")?.asString?.takeIf { name ->
+                    entry.get("type")?.asString == "blob" && name.endsWith(".png") &&
+                        entry.get("mode")?.asString != "120000" &&
+                        (entry.get("size")?.asLong ?: Long.MAX_VALUE) >= 512L
+                }
             }
             val updated = Index(revision, CoverMatcher.index(filenames), clock())
             write(file, updated); memory[repo] = updated

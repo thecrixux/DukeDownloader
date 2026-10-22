@@ -250,4 +250,16 @@
     <string name="mobygames_search_error">No se pudo cargar la página</string>
     <string name="region_worldwide">Todo el mundo</string>
     <string name="covers_automatic_description">Portadas automáticas: PS2 mediante PCSX2/xlenore; Wii y GameCube mediante GameTDB; otras consolas compatibles mediante Libretro. No requieren cuenta. IGDB sigue siendo opcional.</string>
+
+    <string name="cover_cache_title">Carátulas guardadas</string>
+    <string name="cover_cache_usage">%1$d imágenes · %2$s MiB</string>
+    <string name="cover_cache_limit">Límite: %1$d MiB</string>
+    <string name="cover_cache_help">Se guardan solo las carátulas que consultas. Al alcanzar el límite se eliminan las menos usadas. La selección de plataformas protege solo esta limpieza manual. El límite no incluye imágenes antiguas ni importadas.</string>
+    <string name="cover_cache_keep">Conservar estas plataformas al limpiar:</string>
+    <string name="cover_cache_clear">Limpiar el resto</string>
+    <string name="cover_cache_refresh">Actualizar</string>
+    <string name="cover_cache_confirm">Se borrarán las carátulas de las plataformas no marcadas. Tus juegos y descargas se conservarán.</string>
+    <string name="cover_cache_error">No se pudo acceder a la caché de carátulas.</string>
+    <string name="cover_cache_cancel">Cancelar</string>
+    <string name="cover_management_title">Gestión de carátulas</string>
 </resources>

@@ -254,7 +254,7 @@ fun FilterChip(
             .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick),
         color = if (selected) {
-            MaterialTheme.colorScheme.primary
+            MaterialTheme.colorScheme.primaryContainer
         } else {
             MaterialTheme.colorScheme.surfaceVariant
         },
@@ -265,7 +265,7 @@ fun FilterChip(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.labelMedium,
             color = if (selected) {
-                MaterialTheme.colorScheme.onPrimary
+                MaterialTheme.colorScheme.primary
             } else {
                 MaterialTheme.colorScheme.onSurfaceVariant
             }
@@ -319,7 +319,7 @@ fun LoadingIndicator(
             ) {
                 // Logo dell'app senza clip circolare
                 Image(
-                    painter = painterResource(id = com.tottodrillo.R.mipmap.ic_launcher_foreground),
+                    painter = painterResource(id = com.tottodrillo.R.drawable.duke_placeholder),
                     contentDescription = null,
                     modifier = Modifier.size(60.dp)
                 )

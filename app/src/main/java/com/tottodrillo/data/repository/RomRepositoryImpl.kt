@@ -982,7 +982,7 @@ class RomRepositoryImpl @Inject constructor(
         
         // Se non ci sono placeholder dalle sorgenti, usa il logo dell'app come ultima spiaggia
         if (placeholderUrls.isEmpty()) {
-            val appLogoUri = "android.resource://${context.packageName}/mipmap/ic_launcher_foreground"
+            val appLogoUri = "android.resource://${context.packageName}/drawable/duke_placeholder"
             placeholderUrls.add(appLogoUri)
             android.util.Log.d("RomRepositoryImpl", "📱 Usando logo app come placeholder (nessun placeholder dalle sorgenti): $appLogoUri")
         } else {

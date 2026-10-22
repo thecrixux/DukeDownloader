@@ -250,4 +250,16 @@
     <string name="http_error">HTTP error %1$d</string>
     <string name="region_worldwide">Worldwide</string>
     <string name="covers_automatic_description">Automatic covers: PS2 via PCSX2/xlenore; Wii and GameCube via GameTDB; other supported consoles via Libretro. No account required. IGDB remains optional.</string>
+
+    <string name="cover_cache_title">Saved covers</string>
+    <string name="cover_cache_usage">%1$d images · %2$s MiB</string>
+    <string name="cover_cache_limit">Limit: %1$d MiB</string>
+    <string name="cover_cache_help">Only viewed covers are saved. The least recently used are removed at the limit. Platform selections apply only to manual cleaning. The limit excludes legacy and imported images.</string>
+    <string name="cover_cache_keep">Keep these platforms when cleaning:</string>
+    <string name="cover_cache_clear">Clear the rest</string>
+    <string name="cover_cache_refresh">Refresh</string>
+    <string name="cover_cache_confirm">Covers for unchecked platforms will be removed. Your games and downloads will be kept.</string>
+    <string name="cover_cache_error">Could not access the cover cache.</string>
+    <string name="cover_cache_cancel">Cancel</string>
+    <string name="cover_management_title">Cover management</string>
 </resources>

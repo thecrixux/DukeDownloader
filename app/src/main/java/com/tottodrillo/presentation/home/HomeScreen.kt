@@ -105,7 +105,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         androidx.compose.foundation.Image(
-                            painter = painterResource(id = com.tottodrillo.R.mipmap.ic_launcher_foreground),
+                            painter = painterResource(id = com.tottodrillo.R.drawable.duke_placeholder),
                             contentDescription = null,
                             modifier = Modifier.size(28.dp)
                         )

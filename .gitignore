@@ -229,6 +229,10 @@ yarn-error.log*
 # Release notes
 RELEASE_NOTES*.md
 
-/*.ps1
+
+# Local patch and repository recovery backups
 /.duke-*-backup/
-/*.patch
+*.idsig
+/.duke-backup-rules-hotfix/
+/fuentes/*.zip
+/app/src/main/assets/default_sources/*-source.zip

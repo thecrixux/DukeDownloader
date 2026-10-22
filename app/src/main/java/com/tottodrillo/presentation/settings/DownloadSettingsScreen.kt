@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.Collections
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.Notifications
@@ -423,6 +425,7 @@ fun DownloadSettingsScreen(
     }
 
     // Stato per tracciare quali gruppi sono espansi
+    val coverSettingsState = rememberSaveableStateHolder()
     var expandedGroups by rememberSaveable { 
         mutableStateOf(setOf<String>()) 
     }
@@ -610,6 +613,17 @@ fun DownloadSettingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ExpandableSettingsGroup(
+                title = stringResource(R.string.cover_management_title),
+                icon = Icons.Default.Collections,
+                isExpanded = expandedGroups.contains("covers"),
+                onToggleExpand = { toggleGroup("covers") }
+            ) {
+                coverSettingsState.SaveableStateProvider("covers") { CoverCacheSettings() }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -978,111 +992,7 @@ fun DownloadSettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = stringResource(R.string.settings_author_label, "McCoy88f"),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/mccoy88f/Tottodrillo"))
-                        context.startActivity(intent)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Link,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text(
-                        text = stringResource(R.string.settings_github),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                // Sezione Supporto
-                Text(
-                    text = stringResource(R.string.settings_support_me),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = stringResource(R.string.settings_support_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Link Buy Me a Coffee
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.buymeacoffee.com/mccoy88f"))
-                            context.startActivity(intent)
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Link,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text(
-                        text = stringResource(R.string.settings_buy_me_coffee),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Link PayPal
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://paypal.me/mccoy88f?country.x=IT&locale.x=it_IT"))
-                            context.startActivity(intent)
-                        }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Link,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text(
-                        text = stringResource(R.string.settings_paypal),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
+
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -1125,7 +1035,9 @@ private fun RomInfoSearchProviderDropdown(
         ) {
             providers.forEach { provider ->
                 DropdownMenuItem(
-                    text = { Text(providerLabels[provider] ?: provider) },
+                    text = { Text(providerLabels[provider] ?: provider,
+                        color = if (provider == selectedProvider) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) },
+                    modifier = Modifier.background(if (provider == selectedProvider) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface),
                     onClick = {
                         onProviderSelected(provider)
                         expanded = false

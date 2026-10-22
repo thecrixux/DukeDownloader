@@ -1042,8 +1042,8 @@ private fun DownloadLinkCard(
                         is com.tottodrillo.domain.model.DownloadStatus.Completed -> {
                             // Verde quando scaricato
                             androidx.compose.material3.ButtonDefaults.buttonColors(
-                                containerColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
-                                contentColor = androidx.compose.ui.graphics.Color.White
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                         is com.tottodrillo.domain.model.DownloadStatus.Failed,
@@ -1163,7 +1163,7 @@ private fun DownloadLinkCard(
                                         imageVector = Icons.Default.Unarchive,
                                         contentDescription = stringResource(R.string.rom_detail_open_folder),
                                     modifier = Modifier.size(24.dp),
-                                    tint = androidx.compose.ui.graphics.Color(0xFF4CAF50) // Verde
+                                    tint = MaterialTheme.colorScheme.primary // Verde
                                 )
                             }
                         }

@@ -23,9 +23,9 @@ fun rememberFrontCoverUrls(rom: Rom, visible: Boolean = true): State<List<String
     val resolver = remember(context) {
         EntryPointAccessors.fromApplication(context, FrontCoverEntryPoint::class.java).frontCovers()
     }
-    val placeholder = "android.resource://${context.packageName}/mipmap/ic_launcher_foreground"
+    val placeholder = "android.resource://${context.packageName}/drawable/duke_placeholder"
     val importedCover = rom.coverUrl?.takeIf { !rom.igdbUrl.isNullOrBlank() && it.startsWith("http") }
-    val identity = listOf(rom.platform.code, rom.title, rom.regions.map { it.code }.joinToString(","), importedCover)
+    val identity = listOf(rom.platform.code, rom.title, rom.regions.map { it.code }.joinToString(","), importedCover, rom.coverUrl)
     return produceState(initialValue = listOf(placeholder), key1 = identity, key2 = visible) {
         value = listOf(placeholder)
         if (visible) {
