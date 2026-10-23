@@ -40,17 +40,7 @@ Search for a title, browse platforms, inspect artwork and manage downloads witho
 
 ## 🟡 Duke Gold design
 
-A dark interface with the signature golden accents of the Duke project family:
-
-| Element | Hex |
-|---|---|
-| Main accent | `#FFB800` |
-| Highlight | `#FFC21A` |
-| Orange accent | `#FF8A00` |
-| Background | `#101012` |
-| Cards and surfaces | `#18181B` |
-| Main text | `#F2F2F2` |
-| Secondary text | `#9A9AA2` |
+A dark interface with the signature golden
 
 *Dark surfaces. Golden details. Retro soul.* 🦆
 
